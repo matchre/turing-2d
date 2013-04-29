@@ -1,0 +1,195 @@
+<html>
+<head>
+
+
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="author" content="Arthur Brongniart">
+
+<script type="text/javascript" src="external/html5slider.js"></script>
+<script type="text/javascript" src="external/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="external/jquery.mousewheel.min.js"></script>
+<script type="text/javascript" src="external/stats.min.js"></script>
+<script type="text/javascript" src="external/bootstrap/js/bootstrap.js"></script>
+<script type="text/javascript" src="levels.js"></script>
+<script type="text/javascript" src="logic.js"></script>
+
+<link rel="stylesheet" href="external/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="style.css" />
+
+
+
+
+<script type="text/javascript">
+
+var sl;
+	
+window.onload = function(){
+	
+	//init some stuffs
+	initWhenDOMLoaded();
+	
+	//models
+	var authorizerTape=Authorizer.create(true);
+	var authorizerInstruction=Authorizer.create(true);
+	
+	var engine=TuringEngine.create( SocialMap.create() , SocialMap.create()  );
+	
+	var engineplayer = EnginePlayer.create(engine,null);
+	
+	
+	
+	//scene
+	var container=$("#container");
+	
+	scene=Scene.createWithDim(container.width(),container.height(),engine,authorizerTape,authorizerInstruction);
+	scene.getElement().appendTo( $("#container") );
+	//.css({'position':'absolute' , 'top':'130px' , 'left':'20%' });
+	
+	
+	ToolBox.create( scene , engineplayer , null  ).getElement().appendTo( $("body") ).css({'z-index':50});
+	
+	
+	sl=SaveLoadView.create( engine , engineplayer , $('#save-box') );
+	
+	engineplayer.reset();
+	
+	//stats by mr doob
+	var stats = new Stats();
+	stats.setMode(0); // 0: fps, 1: ms
+
+	// Align top-left
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.right = '50px';
+	stats.domElement.style.top = '0px';
+
+	document.body.appendChild( stats.domElement );
+	
+	timeLine.stats=stats;
+	
+};
+
+function envoi(lien) {
+
+	   document.cache.action = "http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php?stuff="+lien;
+
+	   document.cache.submit();
+
+}
+
+</script>
+</head>
+<body>
+
+<div id="container" class="large"></div>
+
+
+<div id="save-box" class="toolBox" >
+	
+	<p>You can either use the old copy / paste method : copy the caracter chain from the input save text. Paste it wherever you want and paste it in the load input the next time.</p>
+	<p>Or you can try to save the file directly. Open the grey submit button in a new tab, and save the page (that is the best working way, sorry :(   ).</p>
+	
+	<div class="row-fuild">
+		<div class="span6">
+			<div class="accordion-group mine">
+				<div class="accordion-toggle btn" data-toggle="collapse" data-target="#collapse-save" data-action="save">save</div>
+				<div id="collapse-save" class="accordion-body collapse">
+					<div class="accordion-inner mine">
+						<input type="text"></input>
+						<div data-action="link"></div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		<div class="span6">
+		
+			<div class="accordion-group mine">
+				<div class="accordion-toggle btn" data-toggle="collapse" data-target="#collapse-load" data-action="load">load</div>
+				<div id="collapse-load" class="accordion-body collapse">
+					<div class="accordion-inner mine">
+						<input type="text"  ></input>
+						<input type="file" ></input>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="tools-box" class="toolBox">
+	<!-- header-->
+	<div class="toolBox-header" style="height: 50px;"></div>
+	<div>
+	<div class="row-fluid tool-group">
+			<div class="row-fluid">
+			<div class="btn" data-toggle="button" data-action="toggle-pop-up-interaction"></div> pops up instruction
+			</div>
+			<div class="row-fluid">
+			<div class="btn" data-toggle="button" data-action="toggle-follow-cursor"></div> follow cursor
+			</div>
+		</div>
+		  <div class="row-fluid tool-group">
+			<div class="row-fluid">
+				<div class="btn" data-action="reset-instruction"></div> reset instruction
+			</div>
+			<div class="row-fluid">
+				<div class="btn" data-action="reset-tape"></div> reset tape
+			</div>
+		  </div>
+	</div>
+	<ul class="nav nav-tabs" id="myTab">
+	  <li><a href="#" data-target="#monitoring">monitoring</a></li>
+	  <li><a href="#" data-target="#editing">editing</a></li>
+	</ul>
+	 
+	<div class="tab-content">
+	  <div class="tab-pane" id="monitoring">
+		  
+		  <div id="ctrl-panel" class="row-fluid tool-group">
+			  <div class="row-fluid">
+				  <div class="btn" data-action="toggle-play"></div>
+				  <div class="btn" data-action="play-next"></div>
+			  </div>
+			  <div class="row-fluid">
+				<span data-action="number-cycle" >5</span> cycle per seconde
+			  </div>
+			  <input data-action="speed-set" type="range" min="0" max="5" style="width:100px;">
+			  <div class="row-fluid">
+				 <div class="btn" data-action="speed-down"></div>
+				 <div class="btn" data-action="speed-up"></div>
+			</div>
+		  </div>
+	  </div>
+	  <div class="tab-pane" id="editing">
+		 <div class="row-fluid tool-group">
+		  <div class="row-fluid">Double click on a cell to edit it</div>
+		  </div>
+		 <div class="row-fluid tool-group">
+			 <div class="btn" data-toggle="button" data-action="toggle-path-tracer"></div>
+			 <div class="btn" data-toggle="button" data-action="toggle-eraser"></div>
+		</div>
+		
+	  </div>
+	</div>
+</div>
+
+<div id="tilePool" style="position:absolute;bottom:10px;display:none;">
+<img data-symbol="1" src="ressource/symbols/cel-write.png">
+<img data-symbol="2" src="ressource/symbols/cel-check.png">
+<img data-symbol="3" src="ressource/symbols/cel-right.png">
+<img data-symbol="4" src="ressource/symbols/cel-left.png">
+<img data-symbol="5" src="ressource/symbols/cel-top.png">
+<img data-symbol="6" src="ressource/symbols/cel-bot.png">
+<img data-symbol="7" src="ressource/symbols/cel-dleft.png">
+<img data-symbol="8" src="ressource/symbols/cel-dright.png">
+<img data-symbol="9" src="ressource/symbols/cel-tright.png">
+<img data-symbol="10"src="ressource/symbols/cel-tleft.png">
+<img data-symbol="11"src="ressource/symbols/cel-ttop.png">
+<img data-symbol="12"src="ressource/symbols/cel-tbot.png">
+</div>
+
+
+</body>
+</html>
