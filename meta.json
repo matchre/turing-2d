@@ -12,7 +12,7 @@
 "authors" : [
 {
 "name" : "Brongniart, Arthur",
-"email" : "arthur.brongniart@esial.net"
+"email" : "arthur.brongniart@esial.net",
 "role" : "auteur",
 "comment" : "version HTLM5/JS"
 },
