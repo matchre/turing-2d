@@ -1,6 +1,6 @@
 {
-"name": "Simulation d'une machine de Turing 2D",
-"width": "1000px",
+"name": "Turing-2D",
+"width": "1200px",
 "height": "800px",
 "comment" : "Simulation d'une machine de Turing 2D",
 "links" : [
@@ -17,9 +17,16 @@
 "comment" : "version HTLM5/JS"
 },
 {
-"name" : "Gilles Dowek",
+"name" : "Dowek, Gilles",
+"email" : "gilles.dowek@inria.fr",
 "role" : "concepteur"
 },
+{
+{
+"name" : "Dershowitz, Nachum",
+"email" : "nachumd@tau.ac.il",
+"role" : "concepteur"
+}
 {
 "name" : "http://www.tnservices.fr/",
 "role" : "producteur"

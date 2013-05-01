@@ -11,8 +11,8 @@
 <script type="text/javascript" src="vendor/jquery.mousewheel.min.js"></script>
 <script type="text/javascript" src="vendor/stats.min.js"></script>
 <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.js"></script>
-<script type="text/javascript" src="levels.js"></script>
-<script type="text/javascript" src="logic.js"></script>
+<script type="text/javascript" src="js/levels.js"></script>
+<script type="text/javascript" src="js/logic.js"></script>
 
 <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="style.css" />
@@ -163,50 +163,49 @@ window.onload = function(){
 
 <div class="descriptionPool" lang="fr" style="display:none;">
 <div class="description" data-id="0">
-	<h1>Vue d'ensemble</h1>
-	<p>Bienvenue sur cet émulateur de machine de Turing en 2 dimension! Nous allons voir ensemble comment il fonctionne à travers une série de cas.</p>
+	<h1>Global view</h1>
+	<p>Welcome on this emulator of a 2D Turing machine ! Let us learn together how this works on some concrete examples.</p>
 	<h3>Concept</h3>
-	<p>Vous n'êtes peut être pas familier du prinicpe de machine de Turing.
+	<p>You may not be familiar with the Turing Machine concept.
 	<div class="accordion-group mine">
 	    <div class="accordion-heading">
 	      <a class="accordion-toggle" data-toggle="collapse" href="#collapse1">
-	        Explications
+	        Explanations
 	      </a>
 	    </div>
 	    <div id="collapse1" class="accordion-body collapse">
 			<div class="accordion-inner mine">
-				<p>Un petit rappel s'impose donc. La machine dispose d'une bande de donnée composée de cellules où sont inscrits des symboles. Ainsi que d'un jeu d'instruction qui forme un programme. A chaque itération la machine effectue des actions. Ces dernières sont typiquement : changer l'état de la machine, déplacer le curseur de lecture de la bande de donnée, écrire sur la bande de donnée. Elle décide de quoi faire d'après son jeu d'instruction, cela peut varier selon l'état dans lequel elle se trouve, ou selon le symbole lut sur la bande de donnée. A partir ce mécanisme simple on peut reproduire le fonctionnement d'un ordinateur complexe.</p>
-				<p> Voilà pour le principe général, ici nous utiliserons une machine particulière. Nous utiliserons une bande de donnée à deux dimensions, c'est à dire que le curseur peut se déplacer horizontalement et verticalement. Il conviendra de parler de carte pour désigner une telle bande. Nous utiliserons une seconde carte pour coder le jeu d'instruction, elle est elle aussi parcourue par un curseur. La position du curseur déterminera ainsi l'état de la machine. La carte programme et la carte de donnée utilisent le même jeu de symbole.</p>
-				<p> Ce dernier est assez simple, il se compose de flèches codant pour le déplacement du curseur de la carte de donnée ( <span class='symbol-tleft mini-tile'></span> <span class='symbol-tright mini-tile'></span> <span class='symbol-ttop mini-tile'></span> <span class='symbol-tbot mini-tile'></span> ), de flèches codant pour le déplacement du curseur de la carte d'instruction ( <span class='symbol-left mini-tile'></span> <span class='symbol-right mini-tile'></span> <span class='symbol-top mini-tile'></span> <span class='symbol-bot mini-tile'></span> <span class='symbol-dright mini-tile'></span> <span class='symbol-dleft mini-tile'></span> ), par défaut ce dernier se déplace de gauche à droite apès la lecture d'un symbole , et de symbole de couleur, n'ayant pas d'autre signification pour le programme qu'un déplacement par par défaut ( <span class='symbol-color1 mini-tile'></span> <span class='symbol-color2 mini-tile'></span> <span class='symbol-color3 mini-tile'></span> ... ). Ajoutons deux symboles plus complexes pour avoir une machine fonctionnelle. Un rond, ( <span class='symbol-check mini-tile'></span> ) le symbole conditionnel sa signification est liée au symbole qui le suit. Lorsque la machine arrive sur ce symbole, elle lit le symbole sur la carte de donnée, si c'est le même que le symbole suivant sur la carte programme, la machine passe sur le symbole gauche suivant, sinon elle passe sur le symbole en bas. Enfin la croix ( <span class='symbol-write mini-tile'></span> ) permet d'inscrire sur la carte de donnée un symbole.</p>
+				<p>A reminder is therefore required. The machine has a tape composed of data cells on which a symbol is written. It also has an instruction set which describes a program. At each iteration, the machine performs actions. These are typically: change the status of the machine, move the date tape cursor, write data onto the tape. The next action is chosen according to the instruction set, the current machine state, or the symbol read on the date tape. From this simple mechanism the operations of a complex computer can be reproduced. In fact, all algorithms can be implemented. </p>
+				<p>Here we use a special machine, with a two dimensional tape. The cursor can move horizontally and vertically. Let us the term map to name such a band. A second map is used to encode the instruction set. It is also covered by a cursor. The cursor position determines the state of the machine. The program card and the data use the same set of symbol.</p>
+				<p> This symbol set if relatively simple. It comprises arrows coding the cursor displacement on the data map ( <span class='symbol-tleft mini-tile'></span> <span class='symbol-tright mini-tile'></span> <span class='symbol-ttop mini-tile'></span> <span class='symbol-tbot mini-tile'></span> ), arrows coding the displacement on the instruction map ( <span class='symbol-left mini-tile'></span> <span class='symbol-right mini-tile'></span> <span class='symbol-top mini-tile'></span> <span class='symbol-bot mini-tile'></span> <span class='symbol-dright mini-tile'></span> <span class='symbol-dleft mini-tile'></span> ), while the default behavior is from left to write after reading a symbol, and finally color symbols, without any meaning as instruction beyond a default displacement ( <span class='symbol-color1 mini-tile'></span> <span class='symbol-color2 mini-tile'></span> <span class='symbol-color3 mini-tile'></span> ... ). Let us add two more complex symbols, y order to have a full functionality. The circle, ( <span class='symbol-check mini-tile'></span> ) is the ``conditional symbol´´ as a function of the symbol that follows. When the machine encounters this symbol, the next symbol is read, and if the symbol on the data map is the same as this next symbol, the next instruction symbol is the one on the left, otherwise it is the one below. Finnaly the cross ( <span class='symbol-write mini-tile'></span> ) allows to write on the data map a symbol, the symbol lefwards to the cross.</p>
 			</div>
 		</div>
 	</div>
 	<h3>Usage</h3>
-	<p>Bien! Maintenant que l'on a les bases, penchons nous sur l'interface. Vous pouvez observer sur votre gauche les deux carte, la carte programme en haut et la carte donnée en bas. Vous pouvez naviguer dans ces carte via cliquer-glisser et ajuster le niveau de zoom avec la molette de la souris.</p>
-	<p>Manipulons à présent le panneau de monitoring, il se trouve tout à droite dans la boite à outils, selectionnez l'onglet monitoring. Vous pouvez y lancer la machine, la stopper, ou choisir l'execution pas à pas.</p>
-	<p>Pour réussir cet exercice, lancez la machine et observez le curseur programme se déplacer en fonction du symbole inscrit sur sa case.</p>
-	<h3>Récapitulatif</h3>
+	<p>Let us now get familiar with the interface. You can see on your left the two maps, the program map upward and the data map downward. You can navigate in these maps via the control click and drag, and adjust the zoom with the mouse wheel.</p>
+	<p>Let us now manipulate the panel monitor, located rightward in the toolbox, by selecting the monitor tab. You can start the machine, stop it, or choose the step-by-step mode.</p>
+	<p>To realize this tutorial, start the machine and observer the cursor displacement as a function of the written symbol.</p>
+	<h3>Summary</h3>
 	<div class="recap">
-	<p>Cet exercice à pour but de vous familiariser avec l'interface.
+          <p>The goal here is to get familiar with the interface.</p>
 	<ul>
-	<li>Déplacez les <strong>cartes</strong> en utilisant le <strong>cliquer-glisser</strong></li>
-	<li>Zoomez celle-ci en utilisant la <strong>molette souris</strong></li>
-	<li>Passez la boite à outils en mode <strong>monitoring</strong> (cliquez sur l'onglet)</li>
-	<li>Lancer la machine grâce au bouton <strong>play</strong></li>
-	<li>Contemplez le résultat</li>
+	<li>Move the <strong>maps</strong> using <strong>click and grad</strong> mouse interaction</li>
+	<li>Zoom using the <strong>mouse wheel</strong></li>
+	<li>Get in <strong>monitoring</strong> mode clicking on the tab</li>
+	<li>Run the machine with the <strong>play</strong> button</li>
+	<li>Enjoy the result</li>
 	</ul>
 	</div>
 </div>
 
-
 <div class="description" data-id="1">
-	<h1>Editons</h1>
-	<p>A vous maintenant! La carte programme de cet exercise est défectueuse, on voudrait que le curseur effectue des tours, comme précédement.</p>
-	<p>Voyons comment utiliser l'éditeur. Premièrement passez en mode édition en cliquant sur l'onglet de la boite à outils. Nous reviendrons plus tard sur les boutons avec une tête bizarre. Sachez tout d'abord que votre liberté d'action est restreinte pour cette exercice et que vous ne pouvez éditer que les cellules non grisées. Double cliquez sur l'une d'elle pour modifier son symbole. Un panneau devrait vous permettre de selectionner le symbole souhaité dans une liste.</p>
+	<h1>Edition</h1>
+	<p>Your turn now ! The program is intentionnaly wrong. The dream is to observe the cursor wandering aong the square as previously.</p>
+	<p>Le us see how to use the editor. First go into edit mode by clicking on the tab of the toolbox. The weird face buttons are going to be explained latter. First notice that your freedom of action is restricted for this tutorial : you can only edit unshaded cells. Double-click one of them to change its symbol. A panel should allow you to select the desired symbol in a list.</p>
 	<div class="accordion-group mine">
 	    <div class="accordion-heading">
 	      <a class="accordion-toggle" data-toggle="collapse" href="#collapse2">
-	        Montre moi!
+	        Show me!
 	      </a>
 	    </div>
 	    <div id="collapse2" class="accordion-body collapse">
@@ -215,30 +214,30 @@ window.onload = function(){
 			</div>
 		</div>
 	</div>
-	<p>Remarquez que tout symbole est lié à une touche et que vous pouvez rapidement écrire une ligne de symboles en vous servant de votre clavier. Validez la saisie au clavier avec la touche entré pour passer à la cellule suivante.</p>
-	<p>Lorsque vous avez complété le programme, testez le en mode monitoring.</p>
-	<h3>Récapitulatif</h3>
+	<p>Notice that each symbol is associated to a keyboard key, so that we can very easily write a symbole sequence with the keyboard. Validate the input with the Enter key, in order to get to the next one.</p>
+	<p>When the progreem is completed, test it with the monitoring mode.</p>
+	<h3>Summary</h3>
 	<div class="recap">
-	<p>On vous demande de vous servir des outils d'édition.</p>
+	<p>The goal here is to get familiar with the interface.</p>
 	<ul>
-	<li>Passez la boite à outils en mode <strong>editing</strong> (cliquez sur l'onglet)</li>
-	<li>Vous pouvez à présent éditer les cases en <strong>double-cliquant</strong>. <small>( Sur une cellule blanche éditable )</small></li>
-	<li>Complétez le chemin</li>
-	<li>Repassez en <strong>monitoring</strong></li>
-	<li>Lancez la machine</li>
+	<li>Use the toolbox in <strong>editing</strong> mode, cliking on the tab</li>
+	<li>You can now edit the cell by  <strong>double-clicking</strong>. <small>( here only on an editable cell )</small></li>
+	<li>Complete the path</li>
+	<li>Switch to the <strong>monitoring</strong> mode</li>
+	<li>Run the machine</li>
 	</ul>
 	</div>
 </div>
 
 
 <div class="description" data-id="2">
-	<h1>Fonctionnalités avancées</h1>
-	<p>Même chose ici, le but est de compléter la boucle. Vous êtes cette fois invité à utiliser les outils avancés.</p>
-	<p>Prennez la première coupure, une manière rapide de tracer un chemin est d'utiliser l'outil de traçage de chemin . Vous le trouverez dans la boite à outils, dans l'onglet d'édition. Lorsque celui est sélectionné, faites un cliquer-glisser depuis un point vers un autre pour les relier par un chemin.</p>
+	<h1>Advanced functionnalities</h1>
+	<p>The goal is now to complete our tour. Let us now used the advaanced tools.</p>
+	<p>-1- A quick way to trace a path is to use the drawing tool path. You will find it in the toolbox in the editing tab. When the "route tracer tool" button is selected, make a click and drag from one point to another to connect them by a path.</p>
 	<div class="accordion-group mine">
 	    <div class="accordion-heading">
 	      <a class="accordion-toggle" data-toggle="collapse" href="#collapse31">
-	        Montre moi!
+	        Show me!
 	      </a>
 	    </div>
 	    <div id="collapse31" class="accordion-body collapse">
@@ -247,11 +246,11 @@ window.onload = function(){
 			</div>
 		</div>
 	</div>
-	<p>De même pour la seconde coupure, cependant avant d'utiliser l'outil vous aurez probablement besoin de nettoyer la zone de tout les symboles ( les chemins ne peuvent être tracés que sur des cases vides ). Pour cela utilisez l'effaceur de zone, lui aussi dans l'onglet édition. Selectionner une zone par cliquer glisser et relâchez pour effacer les symboles de la zone. Il ne vous reste qu'à tracer un chemin en évitant les cellules non modifiable.</p>
+	<p>-2- You will probably need to clean some area of all the symbols (e.g., paths can be traced only on empty boxes). For this, use the eraser area, also in the editing tab. Select an area by clicking and dragging release to erase symbols of area. You just have to draw a path avoiding non-editable cells.</p>
 	<div class="accordion-group mine">
 	    <div class="accordion-heading">
 	      <a class="accordion-toggle" data-toggle="collapse" href="#collapse32">
-	        Montre moi!
+	        Show me!
 	      </a>
 	    </div>
 	    <div id="collapse32" class="accordion-body collapse">
@@ -260,71 +259,71 @@ window.onload = function(){
 			</div>
 		</div>
 	</div>
-	<p>Enfin pour la troisième coupure, vous aurez besoin de sauter par dessus une cellule ( on veut garder la forme de 8 ). Vous pouvez pour cela utiliser le symbole double déplacement ( <span class='mini-tile symbol-dleft'></span> <span class='mini-tile symbol-dright'></span> ). C'est très utile pour que des chemins puissent se croiser. Remarquez que le traceur de chemin est capable d'utiliser ce symbole si il le faut.</p> 
-	<h3>Récapitulatif</h3>
+	<p>-3- Sometimes you need to jump over a cell (for example, if you want to keep the form of 8). You can do this using the double displacement symbol ( <span class='mini-tile symbol-dleft'></span> <span class='mini-tile symbol-dright'></span> ). This is very useful for paths to be able to cross. Note that the tracer path is able to use this symbol, if needed.</p> 
+
+	<h3>Summary</h3>
 	<div class="recap">
-	<p>Passons en revue les outils avancés</p>
+	<p>The goal here is to get familiar with the advanced tools.</p>
 	<ul>
-	<li>Passez la boite à outils en mode <strong>editing</strong></li>
-	<li>Utilisez le traceur de chemin en <strong>cliquant glissant</strong> le long du chemin désiré.</li>
-	<li>Utilisez l'effaceur de zone en <strong>cliquant glissant</strong> pour délimiter la zone.</li>
-	<li>Utilisez le symbole <strong>double déplacement</strong> pour sauter une case</li>
-	<li>Lancez la machine depuis le mode <strong>monitoring</strong></li>
+	<li>Put the toolbox in <strong>editing</strong> mode</li>
+	<li>Use the root tracer tool by <strong>cliking draging</strong>, along the desired path</li>
+	<li>Use the eraser by  <strong>cliking draging</strong>, to delineate the area.</li>
+        <li>Une the double move symbol symbol to jump over a cell</li>
+	<li>Run the machine in monitoring mode as usual</li>
 	</ul>
 	</div>
 </div>
 
 
 <div class="description" data-id="3">
-	<h1>Dessinons</h1>
-	<p>Vous en savez assez sur l'utilisation de l'interface. C'est maintenant le moment d'utiliser les instructions pour agir sur la bande de donnée.</p>
-	<p>Le but de cet exercice est de dessiner un carré violet autour de la cellule orange sur la carte de donnée. Vous n'avez accès à celle-ci que via les instructions donnée à la machine.</p>
+	<h1>Drawing</h1>
+	<p>Let us now the instructions to modify the data map.</p>
+	<p>The purpose of this exercise is to draw a square around the purple orange cell on the data card. You have access to it only though the instructions given to the machine.</p>
 	<div style='margin-left:10%'>
 	<div><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color2'></span></div>
 	<div><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color6'></span><span class='mini-tile symbol-color2'></span></div>
 	<div><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color2'></span><span class='mini-tile symbol-color2'></span></div>
 	</div>
-	<p>C'est à ce motif que l'on voudrait arriver.</p>
-	<p>Les instructions <span class='mini-tile symbol-tleft'></span>, <span class='mini-tile symbol-tright'></span>, <span class='mini-tile symbol-ttop'></span> et <span class='mini-tile symbol-tbot'></span> seront utile pour déplacer le cureur de la carte de donnée.</p>
-	<p>Une fois sur la bonne cellule, utilisez la compinaison de symbole <span class='mini-tile symbol-write'></span> <span class='mini-tile symbol-color2'></span> pour inscrire le symbole violet.</p>
-	<p>Répéter l'opération pour toutes les cellules du carré.</p>
-	<p>Pour cet exercie vous pouvez modifiez la position initial du curseur.</p>	
+	<p>This pattern is the expected goal of this activity.</p>
+	<p>The instructions <span class='mini-tile symbol-tleft'></span>, <span class='mini-tile symbol-tright'></span>, <span class='mini-tile symbol-ttop'></span> and <span class='mini-tile symbol-tbot'></span> are going to be useful to move the cursor on the data map.</p>
+	<p>When on the right cell, use the following symbols combination <span class='mini-tile symbol-write'></span> <span class='mini-tile symbol-color2'></span> in order to write the magenta symbol.</p>
+	<p>Repeat the operation for each cell of the square.</p>
+	<p>For this exercise, note that you can change the initial position of the cursor.</p>	
 </div>
 
 
 <div class="description" data-id="4">
-	<h1>Suivre sa voie</h1>
-	<p>Jouons un peu avec l'instruction conditionnelle. Le but est de réécrire sur le chemin bleu pour le rendre vert. Pour ce faire il va falloir suivre le chemin.</p>
-	<p>L'approche proposée est la suivante, supposons que l'on se trouve sur une case verte, on va se déplacer sur les cases qui nous entoure pour tester laquelle est le prolongement du chemin. Pour ce faire on utilisera l'instruction conditionnelle <span class='mini-tile symbol-check'></span> <span class='mini-tile symbol-color5'></span>, si la case de la carte de donnée est <span class='mini-tile symbol-color5'></span> alors le curseur instruction se déplace à droite, sinon il se déplace vers le bas.</p>
-	<p>Lorsque l'on detecte une case bleu, on la repeint ( <span class='mini-tile symbol-write'></span> <span class='mini-tile symbol-color4'></span> ). On boucle ensuite sur l'état initial pour reprendre la série d'instruction depuis la nouvelle case</p>
-	
+	<h1>Follow your way</h1>
+	<p>Let us now play around with the conditional statement. The goal is to rewrite the blue way to make it green. To do this we will have to follow the path.</p>
+	<p>The proposed approach is the following: Assume that you are on a green box, we will move on the cells boxes around us to test where is the continuation of the path. To do this we use the conditional statement <span class='mini-tile symbol-check'></span> <span class='mini-tile symbol-color5'></span>, if data maap cell is <span class='mini-tile symbol-color5'></span> then the cursor moves to the right instruction, otherwise it moves downward.</p>
+	<p>When detected a blue cekk, we repaint it ( <span class='mini-tile symbol-write'></span> <span class='mini-tile symbol-color4'></span> ). Then we loop on the initial state to resume the series of instruction from the new cell.</p>
 </div>
 
 <div class="description" data-id="5">
-	<h1>Mathématiques</h1>
-	<p>Vous allez voir qu'il est possible de réalisez des opérations arithmétiques simples. Ici nous ferons l'addition de deux entiers.</p>
-	<h3>Représentation</h3>
-	<p>Un entier est X est représenté par X cellules vertes consécutives. On placera une cellule bleu tout à gauche afin de nous servir de repère.</p>
+	<h1>Mathematics</h1>
+	<p>Let us now wee how we can realize basic arithmetic operations. Here we consider adding two integers.</p>
+	<h3>Representation</h3>
+	<p>An integer X is represented by X green consecutive cells. A blue cell is drawn on the left as a token.</p>
 	<div style='margin-left:10%'>
-	<p><small>par exemple le nombre 4: </small></p>
+	<p><small>For instance the number 4 writes: </small></p>
 	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
 	<p></p>
 	</div>
-	<p>On place les deux entiers en colonne : </p>
+	<p>The two integers are set in row : </p>
 	<div style='margin-left:10%'>
 	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
 	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
 	</div>
 	
-	<p><small>On souhaite qu'à la fin de l'exécution, le premier soit la somme des deux</small></p>
+	<p><small>The goal is to obtain, at the end of the run, the 1st integer equal to the sum of both</small></p>
 	<div style='margin-left:10%'>
 	<p>4+2=6 </p>
 	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
 	<div><span class='mini-tile symbol-color4'></span> </div>
 	</div>
 	
-	<h3>Procédure</h3>
-	<p>On propose l'approche suivante : décrémenter de un le nombre de pas tout en incrémentant de un celui du haut, tant que le nombre du bas est différent de zéro.</p>
+	<h3>Procedure</h3>
+	<p>We propose the following approach: a decrement of the second number step by step, while incrementing the upper one, while the bottom number is nonzero.</p>
 	
 	
 </div>
