@@ -20,7 +20,8 @@
 
 <script type="text/javascript">
 
-window.save=function(){return JSON.stringify(instruction.getDatamap().getRewriteManual());}; //little hack for dev purpose
+var instruction;
+window.save=function(){return JSON.stringify(instruction.getRewriteManual());}; //little hack for dev purpose
 	
 window.onload = function(){
 	
@@ -55,6 +56,8 @@ window.onload = function(){
 	ll.next();
 	
 	
+	instruction=engine.getInstruction();
+	
 	//stats by mr doob
 	var stats = new Stats();
 	stats.setMode(0); // 0: fps, 1: ms
@@ -75,12 +78,12 @@ window.onload = function(){
 <body>
 <div style="height:95%;width:33%">
 <div id="description" lang="fr" style="overflow-y:auto;height:90%;"></div>
-<div id="navigation" lang="fr" style="min-height:30px;height:10%;">
+<div id="navigation" lang="fr">
 	<div class="btn" data-action="next">next!</div>
 	<div class="btn" data-action="solution">solution</div>
 	<div class="btn-toolbar">
-	  <div class="btn-group">
-		
+	  <div id="exercices" class="btn-group">
+		<button id="summary-btn" class="btn" data-toggle="button" >Summary</button>
 	  </div>
 	</div>
 </div>
@@ -125,7 +128,7 @@ window.onload = function(){
 			  <div class="row-fluid">
 				<span data-action="number-cycle" >5</span> cycle per seconde
 			  </div>
-			  <input data-action="speed-set" type="range" min="0" max="5" style="width:100px;">
+			  <input data-action="speed-set" type="range" min="0" max="6" style="width:100px;">
 			  <div class="row-fluid">
 				 <div class="btn" data-action="speed-down"></div>
 				 <div class="btn" data-action="speed-up"></div>
@@ -166,7 +169,7 @@ window.onload = function(){
 	<h1>Vue d'ensemble</h1>
 	<p>Bienvenue sur cet émulateur de machine de Turing en 2 dimension! Nous allons voir ensemble comment il fonctionne à travers une série de cas.</p>
 	<h3>Concept</h3>
-	<p>Vous n'êtes peut être pas familier du principe de machine de Turing.
+	<p>Vous n'êtes peut-être pas familier du principe de machine de Turing.
 	<div class="accordion-group mine">
 	    <div class="accordion-heading">
 	      <a class="accordion-toggle" data-toggle="collapse" href="#collapse1">
@@ -329,8 +332,326 @@ window.onload = function(){
 	
 </div>
 
+<div class="description" data-id="6">
+	<h1>Empreinte</h1>
+	<p>Avant de nous attaquer à plus gros, abordons un concept utile : les effets de bords.</p>
+	<p>Nous ne voulons pas dégrader les données en entrée lors de l'addition. Lors de l'exercice précédent, les entrées ( les deux entiers à additionner ) ne sont plus lisible à la fin du programme, le premier est remplacé par la somme et l'autre est égal à zéro.</p>
+	<p>Ce n'est plus ce que nous voulons, les entrées ne doivent pas être altérés, ou si elle le sont pendant le processus, il faut les restaurer à la fin.</p>
+	
+	
+	<h3>Représentation</h3>
+	<p>On place les deux entiers en colonne : </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	</div>
+	<p><small>La dernière ligne doit contenir le résultat à la fin</small><p>
+	<p>À la fin du processus, on doit obtenir cela: </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<h3>Procédure</h3>
+	<p>On se servira des mécanisme de l'exercice précédent. Plutot que de supprimer un à chaque itération, on marquera la cellule unité comme prise en compte en la peignant en orange.</p>
+	<p>Processus en cours </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p>Il suffira de repeindre les cellules en bleu à la fin de l'execution</p> 
+	<p>La procédure en détail est la suivante:</p>
+	<ul>
+		<li>recopier le premier nombre dans le résultat
+		<ul>
+			<li>se déplacer jusqu'à la prochaine cellule unité qui n'est pas orange de la première entrée</li>
+			<li>si elle est vide, on a fini</li>
+			<li>sinon la peindre en orange</li>
+			<li>ajouter un au résultat: se déplacer juqu'à la prochaine cellule unité qui n'est pas bleu du résultat, la peindre en bleu</li>
+			<li>recommencer la première étape</li>
+		</ul>
+		</li>
+		<li>recopier le deuxième nombre dans le résultat <small>( comme précédement )</small></li>
+		<li>repeindre en bleu le deuxième nombre</li>
+		<li>repeindre en bleu le premier nombre</li>
+	</ul>
+	<p>Notons que l'on pourrait repeindre le premier nombre dès qu'on l'a recopié, c'est à vous de voir</p>
 </div>
 
+<div class="description" data-id="7">
+	<h1>Mathématiques avancées</h1>
+	<p>Nous avons maintenant toutes les cartes en main pour faire la multiplication de deux entiers.</p>
+	<h3>Principe</h3>
+	<p>Pour se faire nous allons nous allons décomposer l'opération en addition que nous savons déjà faire, ainsi 4 * 5 = 5 + 5 + 5 + 5.</p>
+	<p>Nous allons avoir besoin de faire l'addition plusieurs fois, c'est pourquoi il est important de restaurer les données à chaque itération comme on l'a vu précédement</p>
+	
+	<h3>Représentation</h3>
+	<p>Comme d'habitude, on place les deux entiers en entrée en colonne, et le résultat en dessous</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	</div>
+	
+	<p>On ne veut pas d'effet de bord à la fin du processus sur les entrées, alors pensez à repeindre les cellules si vous utilisez des marqueurs<p>
+	
+	
+	<h3>Procédure</h3>
+	<p>La procédure générale est la suivante:</p>
+	<ul>
+		<li>se déplacer sur la prochaine cellule unité  de la première entrée qui n'est pas orange</li>
+		<li>si elle est vide, on a finit, on restaure alors les entrées</li>
+		<li>sinon marquer la cellule orange et ajouter la deuxième entrée au résultat.</li>
+	</ul>
+
+        <p>Aidez vous des exercices précédents et des marqueurs</p>
+	
+</div>
+
+
+<div class="description" data-id="8">
+	<h1>Tri</h1>
+	<p>Encore un petit jeu sur les entiers. On souhaite trier une liste d'entiers.</p>
+	
+	<h3>Représentation</h3>
+	<p>Encore une fois on utilise la représentation en barre pour les entiers. On les place les uns en dessous des autres.</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p>A la fin du processus, on souhaite que les entiers soient triés du plus grand au plus petit, en commençant par le haut.</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	
+	<h3>Procédure</h3>
+	<h5>Prérequis</h5>
+	<p>La solution que l'on se propose de mettre en oeuvre est quelque chose entre le tri par insertion et le tri à bulle.</p>
+	<p>On a une opération atomique : comparer deux entiers consécutifs et échanger leurs places si ils ne sont pas correctement ordonnés. Essayez d'effectuer cette opération avant de passer à la suite. C'est en fait assez simple:</p>
+	<ul>
+		<li>On se place à la fin du nombre du dessous.</li>
+		<li>Si celui du dessus est moins grand, lui ajouter un tout en décrémentant celui du dessous <small>( il suffit de tester si la case au dessus de la fin du second nombre est vide )</small></li>
+		<li>On se décalle d'une case vers la gauche et on répéte l'opération.</li>
+	</ul>
+	<p>Prenez garde à bien prendre en compte le cas où l'entier est nul!</p>
+	
+	<h5>Boucle</h5>
+	<p>Bien une fois cela fait, il va falloir effectuer cette opération un certain nombre de fois de manière intelligente. Prenons 5 min pour y réfléchir ... </p>
+	<p>Comme souvent en programmation, on va chercher à diviser le problème.</p>
+	<p>Faisons l'hypothèse que l'on posséde une partition de la liste de taille <strong>n</strong> déjà trié, et l'entier <strong>n+1</strong> en dessous. Il suffit d'effectuer la fameuse opération atomique sur les entier <strong>n</strong> et <strong>n+1</strong>, si les éléments sont bien placé rien ne se passe ( la partition <strong>n+1</strong> est déjà ordonnée ) sinon le dernier élément va "remonter" d'un étage. On le compare alors avec l'entier au dessus de lui : <strong>n-1</strong>, au cas où il remonte suite à cette opération, on le compare au suivant, et ainsi de suite. On est sûr ainsi que la partition <strong>n+1</strong> est ordonnée.</p>
+	<p>Génial ! et maintenant? On répéte la procédure avec l'élément suivant vers le bas jusqu'à ce qu'ils soient tous "remontés" ( comme des bulles dans une choppe de bière, d'où le nom "tri à bulle" )</p>
+	<p>Il nous reste à nous assurer que l'hypothèse de base est vérifiée, à savoir "la partition des <strong>n</strong> premiers éléments est ordonnée. C'est immédiat puisque que l'on part de n = 1 !</p>
+	
+	<p>Pour la mise en oeuvre de la solution, on propose de marquer la partition ordonnée afin de nous y retrouver. On remplace les cases vertes par des jaunes quand la partition est ordonné</p>
+	<p>Voila ce que cela donne quand l'algorithme est en cours d'exécution</p>
+	
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <-</div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p>La partition des 5 premiers éléments est trié, on intégre le 6e élément en effectuant l'opération de comparaison et d'échange de position.</p>
+	
+	<div style='margin-left:20px;margin-top:20px;display:inline-block;'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <-</div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	
+	<div style='margin-left:20px;margin-top:20px;display:inline-block;'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <-</div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<div style='margin-left:20px;margin-top:20px;display:inline-block;'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <-</div> 
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+</div>
+
+<div class="description" data-id="9">
+	<h1>Division</h1>
+	<p>Vous avez déjà fait la multiplication, alors ça ne devrait pas être bien dur!</p>
+	
+        <p>Comme pour la multiplication, on va placer un entier A et un entier B l'un en dessous de l'autre. On souhaite que le 3e entier représente le quotient de la division de A par B, et le 4e entier corresponde au reste.</p>
+	
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	</div>
+	
+	<p>Le résultat attendu correspondra donc à 7 = 3 * 2 + 1</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span></div>
+	</div>
+	
+	
+	<h3>Procédure</h3>
+	<p>On va tout simplement ajouter une unité au quotient à chaque fois que l'on peut soustraire une fois le diviseur. On marquera les unités soustraites à chaque itération sur le dividande.</p>
+	
+	
+	<h5>Implémentation</h5>
+	<ul>
+		<li>Tant que le diviseur et le dividende ne sont pas totalement marqués, on marque une unité sur chacun d'entre eux.</li>
+		<li>Si le diviseur est totalement marqué, on ajoute une unité au quotient, on le démarque alors totalement et on reprend.</li>
+		<li>Si le dividende est totalement marqué, on a le quotient exact, on reporte le reste : c'est le marquage en cours sur le diviseur.</li>
+	</ul>
+	
+	
+	
+</div>
+
+
+<div class="description" data-id="10">
+	<h1>Addition Binaire</h1>
+	<p>On propose maintenant de se rapprocher du comportement d'un processeur en manipulant des nombres binaires.</p>
+	<p>Vous savez tous déjà probablement ce que c'est</p>
+	<div class="accordion-group mine">
+	    <div class="accordion-heading">
+	      <a class="accordion-toggle" data-toggle="collapse" href="#collapse10">
+	        Non?
+	      </a>
+	    </div>
+	    <div id="collapse10" class="accordion-body collapse">
+			<div class="accordion-inner mine">
+				<p>La notation que nous utilisons tous les jours comporte 10 chiffres, 10 symboles différents. On utilise la base 10. Chaque symbole désigne en fait une certaine puissance de 10. 341 = <strong>3</strong> * <small>100</small> + <strong>4</strong> * <small>10</small> + <strong>1</strong> * <small>1</small> ou encore <strong>3</strong> * <small>10^2</small> + <strong>4</strong> * <small>10^1</small> + <strong>1</strong> * <small>10^0</small></p>
+				<p>Pour les nombres binaires on utilise la base 2. Ainsi </p>
+				<p>341 = <strong>1</strong> * <small>2^8</small> + <strong>0</strong> * <small>2^7</small> + <strong>1</strong> * <small>2^6</small> + <strong>0</strong> * <small>2^5</small> + <strong>1</strong> * <small>2^4</small> + <strong>0</strong> * <small>2^3</small> + <strong>1</strong> * <small>2^2</small> + <strong>0</strong> * <small>2^1</small> + <strong>1</strong> * <small>1^0</small> </p>
+				<p>soit <strong>1</strong> * <small>256</small> + <strong>0</strong> * <small>128</small> + <strong>1</strong> * <small>64</small> + <strong>0</strong> * <small>32</small> + <strong>1</strong> * <small>16</small> + <strong>0</strong> * <small>8</small> + <strong>1</strong> * <small>4</small> + <strong>0</strong> * <small>2</small> + <strong>1</strong> * <small>1</small></p>
+				<p>Pourquoi ce choix? Principalement parce que c'est facilement représentable par des grandeurs physiques robustes ( 1 si le courant passe dans le fil, 0 sinon ). Nous allons voir que cela rend aussi les calculs plus simples, car aisément décomposables en étapes simples.</p>
+			</div>
+		</div>
+	</div>
+	
+	
+	<h3>Représentation</h3>
+	<p>On utilise 2 couleurs, bleu et jaune pour représenter un nombre binaire. Jaune vaut 1 et bleu vaut 0. On lit de gauche à droite du bit le plus grand au plus petit. Pas besoin de marqueur de début. On codera les entiers sur 6 bits pour cet exercice, c'est à dire que l'on a 6 cellules.</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color6'></span>  1</div>
+	<div><span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color6'></span>  19</div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span>  63</div>
+	</div>
+	<p><small>On remarque que 63 est le plus grand nombre que l'on peut représenter avec ce système</small></p>
+	
+	
+	<h3>Procédure</h3>
+	<p>L'addition binaire est relativement simple. On décompose la complexité transversalement, c'est à dire que l'on va effectuer la même opération simple sur plusieurs fractions de données.</p>
+	<p>Dans notre cas, on va faire l'addition bit à bit. On se rend compte que pour additionner ensemble deux bits, il y a 3 cas de figures:
+	<ul>
+		<li>Les deux bit sont à zéro, dans ce cas le résultat sera zéro.</li>
+		<li>Un des deux bits est à un, l'autre à zéro, le résultat sera un.</li>
+		<li>Les deux bits sont à 1, le résultat sera zéro <strong>et on ajoute une retenue pour l'addition des deux bits suivants</strong></li>
+	</ul>
+	C'est un peu plus délicat donc, puisqu'il faut penser à prendre en compte la retenue à chaque addition, mais cela n'a rien d'insurmontable.
+	</p>
+	<p>L'opération logique qui donne le résultat de l'addition est le <strong>xor</strong> (ou exclusif), celle qui donne la retenue est le <strong>and</strong> logique.</p>
+	
+	
+	<p>Je pense que vous avez toutes les cartes en main pour faire cette opération, bonne chance!</p>
+	
+	
+</div>
+
+
+<div class="description" data-id="11">
+	<h1>Convertisseur Binaire</h1>
+	<p>Faisons la liaison avec les exercices précédents sur les entiers représentés en ligne</p>
+	<p>Ecrivons un programme qui convertit un entier en base 2 en entier représenté en ligne</p>
+	
+	<p>Le but est d'écrire le nombre en ligne comme dans les exercices précédents après la cellule verte.</p>
+	
+	<h3>Procédure</h3>
+	<p>On va parcourir les bits et ajouter la puissance de 2 correspondante si le bit est à 1</p>
+	<p>Il y a plusieurs étapes à aborder.</p>
+	<ul>
+		<li>
+		On va avoir besoin d'un curseur pour retenir le bit lu
+		<ul><li><small>Il y a une ligne sous la représentation binaire que vous pouvez utiliser à cet effet</small></li></ul>
+		</li>
+		<li>
+		On commence par initialiser un compteur X à 1
+		<ul><li><small>Le compteur utilise la notation en ligne. C'est à vous de le positionner, sous le résultat par exemple</small></li></ul>
+		</li>
+		<li>On lit le premier bit, si c'est un 1 on ajoute X au résultat, sinon on ne fait rien
+		<ul><li><small>On sait déjà faire une addition sans effet de bord</small></li></ul>
+		</li>
+		<li>On multiplie X par 2
+		<ul><li><small>On sait aussi faire une multiplication, en plus celle là est plus facile: on multiplie uniquement par 2</small></li></ul>
+		</li>
+		<li>On passe au bit suivant et on répéte les dernières étapes jusqu'au dernier bit</li>
+		<li>On prendra soin de "nettoyer" la bande des informations de construction ( marqueur, représentation de X, ... )</li>
+	</ul>
+	<p>C'est un gros morceau, mais si vous le décomposez en sous processus clairs, tout devrait bien s'emboiter!</p>
+	
+	<h3>Remarque</h3>
+	<p>C'est incroyable ce que la représentation binaire est plus compacte!</p>
+	
+</div>
+
+
+<div class="description" data-id="12">
+	<h1>Machine Universelle</h1>
+	<p>Bien! On en a fait de belles choses, avec un peu de patience, on pourrait reproduire le comportement d'un composant <strong>A</strong>rithmetic <strong>L</strong>ogic <strong>U</strong>nit, un composant élémentaire de processeur dédié aux opérations logiques. On pourrait même simuler un ordinateur!</p>
+	<p>Vous trouvez peut être que l'on va trop loin, après tout c'est votre ordinateur qui fait fonctionner ce programme et à forteriori qui simule le comportement d'un ordinateur.</p>
+	<p>A vrai dire, nous ne sommes pas près de nous arrêter! Nous allons créer une <strong>machine de Turing Universelle</strong>, une machine de Turing qui simule le comportement ... d'une machine de Turing!</p>
+	<p>Après tout la carte de donnée utilise les même symboles que celle d'instructions, écrivons les instructions d'un programme sur la carte de donnée et faisons en sorte que la carte d'instruction soit en mesure d'interpréter ce programme</p>
+	
+	<br/>
+	<p>Nous utiliserons un marqueur qui nous servira à symboliser le curseur des pseudo-instructions ( celles de la carte de donnée ). Donc nous laissons une ligne vide entre chaque instruction pour le curseur, ce qui nous facilitera beaucoup la tâche.</p>
+        <p>Il faudra tester quel est le symbole relié au marqueur, et agir en conséquence.</p>
+	<p>Si c'est une flèche de déplacement, c'est facile on déplace le marqueur/curseur en conséquence. Les instructions plus complexes demandent plus de réfléxion mais il n'y a rien d'infranchissable</p>
+	
+	<br/>
+	<p>Je vous laisse chercher un peu, sinon vous pouvez toujours tester la solution.</p>
+	<p>J'ai repris l'exercice sur l'addition en ligne, vous n'avez qu'à lancer et contempler!</p>
+	
+</div>
+
+
+</div>
 
 </body>
 </html>

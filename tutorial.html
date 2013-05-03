@@ -20,7 +20,8 @@
 
 <script type="text/javascript">
 
-window.save=function(){return JSON.stringify(instruction.getDatamap().getRewriteManual());}; //little hack for dev purpose
+var instruction;
+window.save=function(){return JSON.stringify(instruction.getRewriteManual());}; //little hack for dev purpose
 	
 window.onload = function(){
 	
@@ -55,6 +56,8 @@ window.onload = function(){
 	ll.next();
 	
 	
+	instruction=engine.getInstruction();
+	
 	//stats by mr doob
 	var stats = new Stats();
 	stats.setMode(0); // 0: fps, 1: ms
@@ -75,12 +78,12 @@ window.onload = function(){
 <body>
 <div style="height:95%;width:33%">
 <div id="description" lang="fr" style="overflow-y:auto;height:90%;"></div>
-<div id="navigation" lang="fr" style="min-height:30px;height:10%;">
+<div id="navigation" lang="fr">
 	<div class="btn" data-action="next">next!</div>
 	<div class="btn" data-action="solution">solution</div>
 	<div class="btn-toolbar">
-	  <div class="btn-group">
-		
+	  <div id="exercices" class="btn-group">
+		<button id="summary-btn" class="btn" data-toggle="button" >Summary</button>
 	  </div>
 	</div>
 </div>
@@ -125,7 +128,7 @@ window.onload = function(){
 			  <div class="row-fluid">
 				<span data-action="number-cycle" >5</span> cycle per seconde
 			  </div>
-			  <input data-action="speed-set" type="range" min="0" max="5" style="width:100px;">
+			  <input data-action="speed-set" type="range" min="0" max="6" style="width:100px;">
 			  <div class="row-fluid">
 				 <div class="btn" data-action="speed-down"></div>
 				 <div class="btn" data-action="speed-up"></div>
@@ -328,8 +331,298 @@ window.onload = function(){
 	
 </div>
 
+<div class="description" data-id="6">
+	<h1>Footprint</h1>
+	<p>Before getting to more complicated challenges, let us consider a key aspect : side effects.</p>
+	<p>In fact, we do not want to alter the input data, when adding two integers, as realized previously. During the last exercice, both input integers have been deleted, the former replaced by the result, the second set to zero.</p>
+	<p>This is not acceptable, input should not be modified, or if they are, original value should be restored at the end.</p>
+	
+	
+	<h3>Representation</h3>
+	<p>The two input integers are put in column : </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	</div>
+	<p><small>The last line is supposed to contain the result at the end</small><p>
+	<p>This is what should be obtained: </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<h3>Procedure</h3>
+	<p>The previous mechanism is going to be reused. However, instead of deleting the cell at each step, it is going to be repaint in orange.</p>
+	<p>Ongoing process view: </p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p>As a consequence, we only will have to repaint the cells in blue at the end</p> 
+	<p>The detailled process is the following:</p>
+	<ul>
+		<li>Copy the first number in the result location
+		<ul>
+			<li>Move until the next cell that is not orange on the first line</li>
+			<li>if the cell is empty, we are done</li>
+			<li>otherwise paint it in orange</li>
+			<li>move until th enexy cell on the third line that is not blue, and paint it in blue</li>
+			<li>repeat the first step</li>
+		</ul>
+		</li>
+		<li>copy the second number in the result <small>( as for the previous step )</small></li>
+		<li>repaint in blue the second number</li>
+		<li>repaint in blue the first number</li>
+	</ul>
+	<p>We also could have repaint the numbers as soon as reported in the result, this is your choice !</p>
 </div>
 
 
-</body>
-</html>
+<div class="description" data-id="7">
+	<h1>Advanced mathematics</h1>
+	<p>We are now ready to make the multiplication of two integers.</p>
+	<h3>Basic idea</h3>
+	<p>We are simply going to decomposed the multiplication as a sequence of addition, that we have already implemented, e.g., 4 * 5 = 5 + 5 + 5 + 5.</p>
+	<p>It is important to restore the data after each addition, as implemented previously, since we have to redo the addition several time</p>
+	
+	<h3>Representation</h3>
+	<p>As usual, the two input integer are put in column and the result below.</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	</div>
+	
+	<h3>Procedure</h3>
+	<p>The main steps are the following:</p>
+	<ul>
+		<li>move on the next cell of the first input taht is not orange</li>
+		<li>if empty, we are done and the input are to be restored</li>
+		<li>otherwise the cell is marqued in orange and the second input is added to the result</li>
+	</ul>
+
+        <p>Previous routines are reused here.</p>
+	
+</div>
+
+
+
+<div class="description" data-id="8">
+	<h1>Sort</h1>
+	<p>Yet another little game on integers. Let us sort an integer sequence.</p>
+	
+	<h3>Representation</h3>
+	<p>Yet another time, the integer input list is put in column.</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<p>At the end, the goal is to have the integers sorted top-down from the biggest to the smallest.</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	
+	<h3>Procedure</h3>
+	<h5>Prerequisites</h5>
+	<p>The proposed solution is a kind of mixture betweem the so called insertion-sort and bubble-sort.</p>
+	<p>It is based on the following atomic operation: compare two consecutive integers and exchange their locations, if not correctly sorted. Try to design the operation on your own. This is in fact quite simple:</p>
+	<ul>
+		<li>The current position is set at the end of the lower number.</li>
+		<li>If the upper number value is lower, it is incremented while the lower number is decremented <small>( we only have to test the cell above the end of the second number is empty )</small></li>
+		<li>We then shift one cell leftward and repeat the operation.</li>
+	</ul>
+	<p>Let us take care about the case the integer is zero!</p>
+	
+	<h5>Loop</h5>
+	<p>This being done, we now ahe to repeat this operation a certain amount of time in a clever way. Let us take a few seconds to think about it ..</p>
+	<p>As usual when programming, we are going to see how to segmentate the problem.</p>
+	<p>Let us assume that we have already obtained a partition of the list with <strong>n</strong> integers already sorted, and let us consider the <strong>n+1</strong> integer below. We only have to do our favorite sorting operation between the <strong>n</strong> and <strong>n+1</strong> integers, if they are well sorted nothing is to be done ( the <strong>n+1</strong> integer sequence is well sorted ), otherwise the last element is going to "climb up" one stage. It is then compared to the <strong>n-1</strong>, integer and switched upward if needed, and so on. We are thus certain, that way, that the <strong>n+1</strong> integer sequence is well sorted.</p>
+	<p>Great! And now? We repeat the procedure with the next element, until all element have travelled upwards ( as bubbles in a bear mug, yielding the "bulle sort" method name )</p>
+	<p>We still have to verify that the initial assumption is verified, i.e., that the <strong>n</strong> first elements are sorted. This is trivial if we start with n = 1 !</p>
+	
+	<p>At the implementation level, we propose to mark the already sorted partition in order to make things readable. Green cells are replaced by yellow cells, when sorted.</p>
+	<p>Here is a view of the algorithm, during its execution</p>
+	
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <-</div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+        <p>The 5 first elements are sorted, we integrate the 6th number using our atomic comparison/switch operation.</p>
+	
+	<div style='margin-left:20px;margin-top:20px;display:inline-block;'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <-</div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	
+	<div style='margin-left:20px;margin-top:20px;display:inline-block;'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <-</div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+	<div style='margin-left:20px;margin-top:20px;display:inline-block;'>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span></div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <-</div> 
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	</div>
+	
+</div>
+
+<div class="description" data-id="9">
+	<h1>Division</h1>
+	<p>Since we have implemented the multiplication, the division will not be that complicated!</p>
+	
+        <p>As for the multiplication, we are going to set the two integers A and B one above the other. The goal is to obtain the quotient as the 3rd integer and the remainder as the 4th one.</p>
+	
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> </div>
+	</div>
+	
+	<p>The expected result is thus 7 = 3 * 2 + 1 in this case</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> </div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></div>
+	<div><span class='mini-tile symbol-color4'></span> <span class='mini-tile symbol-color5'></span></div>
+	</div>
+	
+	
+	<h3>Procedure</h3>
+        <p>We simply are going increment the quotient each time we can substract B to A. We also are going to mark the substracted units at each iteration on A.</p>
+	
+	
+	<h5>Implementation</h5>
+	<ul>
+		<li>While A and B are not entirely marked, we marked a unit on each.</li>
+		<li>If B is entirely marqued, we increment the quotient, unmarked B, and repeat the previous step..</li>
+		<li>If A is entirely marked, then the quotient is obtained, and we report the remainder which corresponds to the present marks on the divider B.</li>
+	</ul>
+	
+	
+	
+</div>
+
+
+<div class="description" data-id="10">
+	<h1>Binary Addition</h1>
+	<p>Let us now get closer to a digital processor behavior, considering binary numbers.</p>
+	
+	<h3>Representation</h3>
+	<p>We use towo colors blue and yellow, to represent a binary number. Yellow for 1. Blue for 0. The number reads from left to right, from the higher bit to the lower bit. No need of marker at the beginning here. Integers are coded on 6 bits, here, i.e., we are going to have 6 cells.</p>
+	<div style='margin-left:10%'>
+	<div><span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color6'></span>  1</div>
+	<div><span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color5'></span> <span class='mini-tile symbol-color6'></span>  19</div>
+	<div><span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span> <span class='mini-tile symbol-color6'></span>  63</div>
+	</div>
+	<p><small>Notice that 63 is the highest number that can be represented by such a system</small></p>
+	
+	
+	<h3>Procedure</h3>
+	<p>The binary addition is relatively simple. In this case, we are going to implement the operation bit after bit.</p>
+	<p>When adding two bits, three cases are possible:
+	<ul>
+		<li>If the two bits are zero, the result is zero.</li>
+		<li>If one bit is not zero, and the other is zero, the result is one.</li>
+		<li>If both bits are not zero, the result is zero again <strong>and a carry is to be added on the next two bits addition</strong></li>
+	</ul>
+	As a consequence, the situation is a bit more complex since the carry is to be taken into account at each stage.
+	</p>
+	<p>The logical operation that gives the two bit addition result is the <strong>xor</strong>, the one that calculates the carry is the  <strong>and</strong>.</p>
+	
+	
+        <p>With this basic elements, you should be able to perform this operation: this is your turn !</p>
+	
+	
+</div>
+
+
+<div class="description" data-id="11">
+	<h1>Binary Converter</h1>
+	<p>Let us link the binary representation with the previous exercices with integer represented as a cell sequence</p>
+	<p>More precisely, let us write a program that converts a binary number into a cell sequence number</p>
+	
+	<h3>Procedure</h3>
+	<p>We are going to read each bit and add the corresponding power of two value if the bit is not zero</p>
+	<p>Several steps are to be considered.</p>
+	<ul>
+		<li>
+		A marker is required to memorize the last bit read
+		<ul><li><small>The line below the the binary representation can be used for it</small></li></ul>
+		</li>
+		<li>
+		We start by initializing a counter X to 1
+		<ul><li><small>The counter uses the cell sequence representation. For instance, it might be located under the result</small></li></ul>
+		</li>
+		<li>The first bit is reeadm if it is not zero, the X value is added to the result, otherwise nothing is done
+		<ul><li><small>We reuse the addition without side-effect here</small></li></ul>
+		</li>
+		<li>Then X is multiplied by 2
+		<ul><li><small>We have already programmed a multiplication, but this one is much simpler, since we only multiply by 2, each time</small></li></ul>
+		</li>
+		<li>These operations are repeated for the next bit, until the last one</li>
+                <li>We have also to take care about cleaning the map regarding construction information (markeer, X counter, ..)</li>
+	</ul>
+	<p>It is a rather huge challenge, but if it is decomposed into clear sub-tasks, all is going to be properly clamped</p>
+	
+</div>
+
+<div class="description" data-id="12">
+	<h1>Universal machine</h1>
+        <p>Well! We have already done nice things, but with some extra energy, we could even reproduce the behavior of an <strong>A</strong>rithmetic <strong>L</strong>ogic <strong>U</strong>nit, i.e., the processor component dedicated to logical operations. We even could simulate a whole computer!</p>
+        <p>You may find it goes too far, since after all it is your computer that makes such program runing, thus simulating the behavior of the computer itself.</p>
+	<p>In fact, we are not ready to stop! Let us create a <strong>Universal Turing machine</strong>, i.e., a Turing machine that simulates the behavior of . . a Turing machine!</p>
+
+        <p>In fact, the data map uses the same symbols as the instruction map, we thus can write the program instructions on the data map, and then design a universal program that interpret the data map instructions.</p>	
+	<br/>
+        <p>We are going to use a marker to locate the ongoing pseudo-instruction on the data map. We thus must leave an empty line below each instruction.</p>
+        <p>The main operation is to test the symbol related to the marker and implement the related operation.</p>
+        <p>If it is a displacement arrow, it is easy and we simply have to move the marker accordingly. Other instruction are more complex but not intractable.</p>
+	
+	<br/>
+	<p>Please, do it yourself. Otherwise you always can check the solution.</p>
+        <p>Here, we have reused the addition algorithm as test program, look at the result and enjoy!</p>
+	
+</div>
+
+
+</div></body></html>

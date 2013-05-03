@@ -10,132 +10,11 @@ var extend = function( child , f ){
 };
 
 
-/*
- * Storage of element,
- * Store n element, if we tre try to store a (n+1)th element, the first whose been pushed is deleted
- * Storage can be iterate with next and resetCursor
- */
-var Queue = function(){};
-Queue.prototype = {
-	_list : null,
-	_capacity : 1,
-	initWithCapacity : function( c ){
-		this._capacity = c;
-	},
-	/*
-	 * push the element at the queue
-	 */
-	push : function( e ){
-	
-		this._list = {
-			e : e,
-			next : this._list,
-		};
-		
-		var p = this._list;
-		for( var i = 1 ; i < this._capacity && p.next != null ; i ++)
-			p = p.next;
-		
-		if( p.next != null ){
-			if( p.next.e.finish != null )
-				p.next.e.finish();
-			p.next = null;
-		}
-	},
-	/*
-	 * return the first element ( the one that have been push in first so ) and delete it from the queue
-	 */
-	pop : function(){
-		if( this._list == null )
-			return null;
-		if( this._list.next == null ){
-			var e = this._list.e
-			this._list = null;
-			return e;
-		}
-		var p = this._list;
-		while( p.next.next != null )
-			p = p.next;
-		
-		var e = p.next.e;
-		p.next = null;
-		return e;
-	},
-	/*
-	 * return the first matching element, delete it from the queue
-	 */
-	grab : function( match ){
-		if( this._list == null )
-			return;
-		if( match( this._list.e ) ){
-			var e = this._list.e;
-			this._list = this._list.next;
-			return e;
-		}
-		var last = this._list, p = this._list;
-		while( ( p = p.next ) != null ){
-			if(  match( p.e ) ){
-				var e = p.e;
-				last.next = p.next;
-				return e;
-			}
-			last = p;
-		}
-		return ;
-	},
-	flush : function(){
-		this.resetCursor();
-		
-		var i;
-		
-		while( ( i = this.next() ) != null )
-			i.finish();
-		
-		this._list = null;
-	},
-	getNbElement : function(){
-		this.resetCursor();
-		
-		var i , nb = 0;
-		
-		while( ( i = this.next() ) != null )
-			nb ++;
-			
-		return nb;
-	},
-	getCapacity : function(){
-		return this._capacity;
-	},
-	_cursor : null,
-	resetCursor : function(){
-		this._cursor = this._list;
-	},
-	next : function(){
-		if( this._cursor == null )
-			return null;
-		var e = this._cursor.e;
-		
-		this._cursor = this._cursor.next;
-		
-		return e;
-	},
-	toArray : function(){
-		this.resetCursor();
-		
-		var t = [],
-			i;
-		
-		while( ( i = this.next() ) != null )
-			t.push( i );
-		
-		return t;
-	},
-}
-Queue.createWithCapacity = function( c ){
-	var q = new Queue();
-	q.initWithCapacity( c );
-	return q;
-}
+//============================
+//============================
+//== Data Related Objects ====
+//============================
+//============================
 
 
 var Stack = function(){};
@@ -169,6 +48,7 @@ Stack.createWithCapacity  = function( n ){
 
 
 /**
+ * @class an object that notify listener every application cycle ( 1/60 s )
  * register element 
  * do not manage redundancy
  * got a delta cap
@@ -339,6 +219,10 @@ window.requestAnimFrame=(function(callback){
 		};
 })();
 
+/**
+ * @class an object that call a callBack when the timer is over
+ * @description assuming a CycleNotifier exist and is named timeLine
+ */
 var WakeMeUp=function(){};
 WakeMeUp.prototype={
 	d:null,
@@ -370,6 +254,7 @@ timeLine=CycleNotifier.create();
 timeLine.start();
 
 /**
+ * @class a class that notify stuff
  * register element in classes
  * do not manage redundancy
  * no need to init
@@ -512,6 +397,9 @@ AbstractNotifier.prototype = {
 	},
 }
 
+/**
+ * @class herit from AbstractNotifier, hold the notification and trigger it on demand
+ */
 function SynchronousNotifier(){};
 extend( SynchronousNotifier , AbstractNotifier.prototype );
 SynchronousNotifier.prototype._notifyStack=null,
@@ -568,147 +456,6 @@ var CEL_NAME=[
 	'color6',
 	'color7',
 ];
-	
-var tileSize = 100;
-
-var colorPalette = [
-	"#BBA341",
-	"#A76CBA",
-	"#C23102",
-	"#01B101",
-	"#128190",
-	"#EBA914",
-	"#9012C1",
-	"#913B10",
-];
-
-/*
- * draw a motif 
- * in a square of 1x1 pixel
- */
-var vectorMotif = function(){
-	
-	var arrow = function( ctx ){
-		ctx.beginPath();
-		ctx.moveTo( 0 , 0.3 );
-		ctx.lineTo( 0.45 , 0.3 );
-		ctx.lineTo( 0.45 , 0 );
-		ctx.lineTo( 1 , 0.5 );
-		ctx.lineTo( 0.45 , 1 );
-		ctx.lineTo( 0.45 , 0.7 );
-		ctx.lineTo( 0 , 0.7 );
-		ctx.lineTo( 0 , 0.3 );
-	};
-	
-	var cross = function( ctx ){
-		ctx.beginPath();
-		ctx.moveTo( 0.4 , 0 );
-		ctx.lineTo( 0.6 , 0 );
-		ctx.lineTo( 0.6 , 0.4 );
-		ctx.lineTo( 1 , 0.4 );
-		ctx.lineTo( 1 , 0.6 );
-		ctx.lineTo( 0.6 , 0.6 );
-		ctx.lineTo( 0.6 , 1 );
-		ctx.lineTo( 0.4 , 1 );
-		ctx.lineTo( 0.4 , 0.6 );
-		ctx.lineTo( 0 , 0.6 );
-		ctx.lineTo( 0 , 0.4 );
-		ctx.lineTo( 0.4 , 0.4 );
-		ctx.lineTo( 0.4 , 0 );
-		
-	};
-	
-	var bigCross = function( ctx ){
-		ctx.beginPath();
-		ctx.moveTo( 0.3 , 0 );
-		ctx.lineTo( 0.7 , 0 );
-		ctx.lineTo( 0.7 , 0.3 );
-		ctx.lineTo( 1 , 0.3 );
-		ctx.lineTo( 1 , 0.7 );
-		ctx.lineTo( 0.7 , 0.7 );
-		ctx.lineTo( 0.7 , 1 );
-		ctx.lineTo( 0.3 , 1 );
-		ctx.lineTo( 0.3 , 0.7 );
-		ctx.lineTo( 0 , 0.7 );
-		ctx.lineTo( 0 , 0.3 );
-		ctx.lineTo( 0.3 , 0.3 );
-		ctx.lineTo( 0.3 , 0 );
-		
-	};
-	
-	var rond = function( ctx ){
-		ctx.beginPath();
-		ctx.arc( 0.5 , 0.5 , 0.5 , 0 , Math.PI*2 );
-		
-	};
-	
-	return {
-		arrow : arrow,
-		arrowLight : arrow,
-		arrowDouble : arrow,
-		write : bigCross,
-		check : rond,
-	};
-}();
-
-/*
- * collection of canvas that represent the motif
- */
-var motif = {drawTile:function(){}};
-initWhenDOMLoaded=function(){
-	motif = (function(){ 
-
-	var motif = {};
-	var pool=$('#tilePool');
-	for( var i = 0 ; i < 20 ; i ++ ){
-		
-		var canvas = $("<canvas>");
-		
-		canvas.width( tileSize );
-		canvas.height( tileSize );
-		
-		canvas.attr( "width" , tileSize );
-		canvas.attr( "height" , tileSize );
-		
-		motif[ i ] = canvas;
-		
-		var context = canvas[0].getContext( "2d" );
-		
-		if(i==0)
-			continue;
-		
-		if( i > 12 ){
-			context.fillStyle = colorPalette[ Math.min( i - 13 , colorPalette.length -1 ) ] ;
-			context.beginPath();
-			context.rect(  0 , 0 , tileSize , tileSize );
-			context.fill();
-		}
-		else
-			context.drawImage( pool.find('[data-symbol="'+i+'"]')[0] , 0 , 0 , tileSize , tileSize );
-	}
-	
-	motif.drawTile = function( symbol , context , ts , x , y ){
-		var x=x||0;
-		var y=y||0;
-		if( symbol >= 20 )
-			return;
-		
-		if( symbol < 13 )
-			context.drawImage( motif[ symbol ][0] , x , y , ts , ts );
-		else
-		{
-			context.fillStyle = colorPalette[ Math.min( symbol - 13 , colorPalette.length -1 ) ] ;
-			context.beginPath();
-			context.rect(  x , y , ts , ts );
-			context.fill();
-		}
-	};
-	
-	return motif;
-})();	
-
-};
-
 
 /*
  * command system
@@ -1059,22 +806,6 @@ scope.resetMap = CmdResetMap;
 
 })( cmd );
 
-	//// ctrl z - ctrl y listener
-	$(document).ready(function(){
-		$(document).on('keyup' , function(e){
-			if(!e.ctrlKey)
-				return;
-			switch(e.which){
-				case 90:
-					cmd.mgr.undo();
-				break;
-				case 89:
-					cmd.mgr.redo();
-				break;
-			}
-		});
-	});
-
 
 /**
  * @class unlimited two dimension array, write symbol in any cell and access it.
@@ -1139,7 +870,10 @@ Map.create = function(){
 };
 
 
-
+/**
+ * @class overwrite write and reset method of map
+ * @class retain all the modification in _dirtyCel, in that way the renderer knows what to redraw
+ */
 var EnhancedMap = function(){};
 EnhancedMap.prototype = {
 	
@@ -1173,19 +907,17 @@ EnhancedMap.prototype = {
 		return this._box;
 	},
 };
-for( var p in Map.prototype )
-	EnhancedMap.prototype[ p ] = Map.prototype[ p ];
-EnhancedMap.prototype._super = Map.prototype;
+extend( EnhancedMap , Map.prototype );
 EnhancedMap.prototype.write = function( x , y , symbol ){
 	var prev = this.read( x , y );
-	this._super.write.call( this , x , y , symbol );
+	Map.prototype.write.call( this , x , y , symbol );
 	if( prev != this.read( x , y ) )
 		this._dirtyCel.push( {x:x , y:y } );
 	if( symbol != CEL_EMPTY )
 		this._recalBox( x , y );
 };
 EnhancedMap.prototype.init = function(){
-	this._super.init.call( this );
+	Map.prototype.init.call( this );
 	this._dirtyCel = new Array();
 };
 EnhancedMap.create = function(){
@@ -1196,7 +928,8 @@ EnhancedMap.create = function(){
 
 
 /**
- *@class a map that implement notifier interface, notify the 'struct' event whenever the map is modify
+ * @class a map that implement notifier interface, notify whenever the map is modify
+ * @description event thowed : 'write' , 'reset'
  */
 var SocialMap=function(){};
 extend( SocialMap , AbstractNotifier.prototype );
@@ -1353,7 +1086,434 @@ TuringEngine.create = function( tape , instruction , startTape , startInstr ){
 	return te;
 };
 
+/**
+ * @class a object that can call cycle on the engine every frame
+ */
+var EnginePlayer = function(){};
+extend( EnginePlayer , AbstractNotifier.prototype );
+extend( EnginePlayer , {
+	engine:null,
+	ll:null,
+	
+	_cyclePerS:null,
+	_cyclePartial:null,
+	_run:false,
+	
+	init:function(engine,ll){
+		this.engine=engine;
+		this.ll=ll;
+		timeLine.registerListener({f:this.call,o:this});
+		
+		this._cyclePartial=0;
+		this._cyclePerS=0;
+		
+		if( this.ll )
+			this.ll.registerListener( 'set-level' ,{f:function(){ this.reset(); } , o:this} );
+			
+		
+	},
+	setSpeed:function(v){
+		if( this._cyclePerS == v )
+			return;
+		this._cyclePerS = v;
+		this.notify("set-speed");
+	},
+	isRunning:function(){
+		return this._run;
+	},
+	getSpeed:function(){
+		return this._cyclePerS
+	},
+	next:function(){
+		this.engine.cycle();
+	},
+	start : function( ){
+		if(this._run)
+			return;
+		this._run = true;
+		this._cyclePartial = 0;
+		this.notify('start');
+	},
+	stop : function(){
+		if(!this._run)
+			return;
+		this._run = false;
+		this.notify('stop');
+	},
+	call : function( delta ){
+		
+		if( !this._run )
+			return;
+		
+		var n = delta / 1000 * this._cyclePerS + this._cyclePartial;
+		
+		for( var i = 0 ; i < Math.floor( n ) ; i ++ )
+			this.engine.cycle();
+		this._cyclePartial = n%1;
+	},
+	reset : function(options){
+		options=options||{};
+		var cursor		= options.cursor!=null?options.cursor:true;
+		var map			= options.map!=null?options.map:true;
+		var instruction	= options.instruction!=null?options.instruction:true;
+		var tape		= options.tape!=null?options.tape:true;
+		var solution 	= options.solution!=null?options.solution:false;
+		var undoable 	= options.undoable!=null?options.undoable:true;
+		var lvl			= options.lvl || ( this.ll ? this.ll.getLvl() : null );
+		
+		var t=[];
+		
+		if( map && instruction ){
+			var instruction = this.engine.getInstruction();
+			var rewriteManual = lvl ? ( solution ? lvl.writeManualInstructionSolution : lvl.writeManualInstruction ) : [];
+			
+			t.push( cmd.resetMap.create( instruction ) );
+			for(var i=0;i<rewriteManual.length;i++)
+				t.push( cmd.writeMap.create( instruction , rewriteManual[i] , rewriteManual[i].s ) );
+		}
+		if( map && tape ){
+			var tape = this.engine.getTape();
+			var rewriteManual = lvl ? ( solution ? lvl.writeManualTapeSolution : lvl.writeManualTape ) : [];
+			
+			t.push( cmd.resetMap.create( tape ) );
+			for(var i=0;i<rewriteManual.length;i++)
+				t.push( cmd.writeMap.create( tape , rewriteManual[i] , rewriteManual[i].s ) );
+		}
+		if( cursor && instruction ){
+			var cursorp = lvl ? lvl.cursorInstruction : {x:0, y:0};
+			t.push( cmd.moveCursor.create( 'instruction' , this.engine , cursorp ) );
+		}
+		if( cursor && tape ){
+			var cursorp = lvl ? lvl.cursorTape : {x:0, y:0};
+			t.push( cmd.moveCursor.create( 'tape' , this.engine , cursorp ) );
+		}
+		if(t.length==0)
+			return;
+		if(undoable)
+			cmd.mgr.execute( cmd.multi.createWithTab(t) );
+		else
+			cmd.multi.createWithTab(t).execute();
+	},
+});
+EnginePlayer.create=function(engine,ll){
+	var e=new EnginePlayer();
+	e.init(engine,ll);
+	return e;
+};
 
+/**
+ * @class a object that know if a cell is editable or not
+ */
+var Authorizer=function(){};
+extend( Authorizer , AbstractNotifier.prototype );
+extend( Authorizer , {
+	exceptions:null,
+	defaultValue:null,
+	cursorCtrl:null,
+	init:function(defaultValue,exceptions,cursorCtrl){
+		this.exceptions=exceptions||[];
+		this.defaultValue=defaultValue;
+		this.cursorCtrl=cursorCtrl;
+		this.notify('struct');
+	},
+	read:function(x,y){
+		var i=this.exceptions.length;
+		while(i--)
+			if(this.exceptions[i].x==x&&this.exceptions[i].y==y)
+				return !this.defaultValue;
+		return this.defaultValue;
+	},
+});
+Authorizer.create=function(defaultValue,exceptions,cursorCtrl){
+	var a=new Authorizer();
+	a.init(defaultValue,exceptions,cursorCtrl);
+	return a;
+};
+
+
+
+//============================
+//============================
+//== View Related Object =====
+//============================
+//============================
+
+
+/*
+ * Storage of element,
+ * Store n element, if we tre try to store a (n+1)th element, the first whose been pushed is deleted
+ * Storage can be iterate with next and resetCursor
+ */
+var Queue = function(){};
+Queue.prototype = {
+	_list : null,
+	_capacity : 1,
+	initWithCapacity : function( c ){
+		this._capacity = c;
+	},
+	/*
+	 * push the element at the queue
+	 */
+	push : function( e ){
+	
+		this._list = {
+			e : e,
+			next : this._list,
+		};
+		
+		var p = this._list;
+		for( var i = 1 ; i < this._capacity && p.next != null ; i ++)
+			p = p.next;
+		
+		if( p.next != null ){
+			if( p.next.e.finish != null )
+				p.next.e.finish();
+			p.next = null;
+		}
+	},
+	/*
+	 * return the first element ( the one that have been push in first so ) and delete it from the queue
+	 */
+	pop : function(){
+		if( this._list == null )
+			return null;
+		if( this._list.next == null ){
+			var e = this._list.e
+			this._list = null;
+			return e;
+		}
+		var p = this._list;
+		while( p.next.next != null )
+			p = p.next;
+		
+		var e = p.next.e;
+		p.next = null;
+		return e;
+	},
+	/*
+	 * return the first matching element, delete it from the queue
+	 */
+	grab : function( match ){
+		if( this._list == null )
+			return;
+		if( match( this._list.e ) ){
+			var e = this._list.e;
+			this._list = this._list.next;
+			return e;
+		}
+		var last = this._list, p = this._list;
+		while( ( p = p.next ) != null ){
+			if(  match( p.e ) ){
+				var e = p.e;
+				last.next = p.next;
+				return e;
+			}
+			last = p;
+		}
+		return ;
+	},
+	flush : function(){
+		this.resetCursor();
+		
+		var i;
+		
+		while( ( i = this.next() ) != null )
+			i.finish();
+		
+		this._list = null;
+	},
+	getNbElement : function(){
+		this.resetCursor();
+		
+		var i , nb = 0;
+		
+		while( ( i = this.next() ) != null )
+			nb ++;
+			
+		return nb;
+	},
+	getCapacity : function(){
+		return this._capacity;
+	},
+	_cursor : null,
+	resetCursor : function(){
+		this._cursor = this._list;
+	},
+	next : function(){
+		if( this._cursor == null )
+			return null;
+		var e = this._cursor.e;
+		
+		this._cursor = this._cursor.next;
+		
+		return e;
+	},
+	toArray : function(){
+		this.resetCursor();
+		
+		var t = [],
+			i;
+		
+		while( ( i = this.next() ) != null )
+			t.push( i );
+		
+		return t;
+	},
+}
+Queue.createWithCapacity = function( c ){
+	var q = new Queue();
+	q.initWithCapacity( c );
+	return q;
+}
+
+
+//== Prepare the draw Tile Function =====
+
+var tileSize = 100;
+
+var colorPalette = [
+	"#BBA341",
+	"#A76CBA",
+	"#C23102",
+	"#01B101",
+	"#128190",
+	"#EBA914",
+	"#9012C1",
+	"#913B10",
+];
+
+/*
+ * draw a motif 
+ * in a square of 1x1 pixel
+ * no longuer used, we load bitmap image instead
+ */
+var vectorMotif = function(){
+	
+	var arrow = function( ctx ){
+		ctx.beginPath();
+		ctx.moveTo( 0 , 0.3 );
+		ctx.lineTo( 0.45 , 0.3 );
+		ctx.lineTo( 0.45 , 0 );
+		ctx.lineTo( 1 , 0.5 );
+		ctx.lineTo( 0.45 , 1 );
+		ctx.lineTo( 0.45 , 0.7 );
+		ctx.lineTo( 0 , 0.7 );
+		ctx.lineTo( 0 , 0.3 );
+	};
+	
+	var cross = function( ctx ){
+		ctx.beginPath();
+		ctx.moveTo( 0.4 , 0 );
+		ctx.lineTo( 0.6 , 0 );
+		ctx.lineTo( 0.6 , 0.4 );
+		ctx.lineTo( 1 , 0.4 );
+		ctx.lineTo( 1 , 0.6 );
+		ctx.lineTo( 0.6 , 0.6 );
+		ctx.lineTo( 0.6 , 1 );
+		ctx.lineTo( 0.4 , 1 );
+		ctx.lineTo( 0.4 , 0.6 );
+		ctx.lineTo( 0 , 0.6 );
+		ctx.lineTo( 0 , 0.4 );
+		ctx.lineTo( 0.4 , 0.4 );
+		ctx.lineTo( 0.4 , 0 );
+		
+	};
+	
+	var bigCross = function( ctx ){
+		ctx.beginPath();
+		ctx.moveTo( 0.3 , 0 );
+		ctx.lineTo( 0.7 , 0 );
+		ctx.lineTo( 0.7 , 0.3 );
+		ctx.lineTo( 1 , 0.3 );
+		ctx.lineTo( 1 , 0.7 );
+		ctx.lineTo( 0.7 , 0.7 );
+		ctx.lineTo( 0.7 , 1 );
+		ctx.lineTo( 0.3 , 1 );
+		ctx.lineTo( 0.3 , 0.7 );
+		ctx.lineTo( 0 , 0.7 );
+		ctx.lineTo( 0 , 0.3 );
+		ctx.lineTo( 0.3 , 0.3 );
+		ctx.lineTo( 0.3 , 0 );
+		
+	};
+	
+	var rond = function( ctx ){
+		ctx.beginPath();
+		ctx.arc( 0.5 , 0.5 , 0.5 , 0 , Math.PI*2 );
+		
+	};
+	
+	return {
+		arrow : arrow,
+		arrowLight : arrow,
+		arrowDouble : arrow,
+		write : bigCross,
+		check : rond,
+	};
+}();
+
+/*
+ * collection of canvas that represent the motif
+ */
+var motif = {drawTile:function(){}};
+initWhenDOMLoaded=function(){
+	motif = (function(){ 
+	
+	var rightSized={};		// contain the tile at the right size, acces like this -> rightSized[ {int}tilseSize ][ {int} symbol ] is the canvas
+	
+	var pool=$('#tilePool');
+	
+	var computeRightSized=function(ts){
+		var t=[];
+		for( var i = 1 ; i <= 12 ; i ++ ){
+			var canvas = $("<canvas>");
+			
+			canvas.width( ts );
+			canvas.height( ts );
+			
+			canvas.attr( "width" , ts );
+			canvas.attr( "height" , ts );
+			
+			t[ i ] = canvas[0];
+			
+			var context = canvas[0].getContext( "2d" );
+			
+			context.drawImage( pool.find('[data-symbol="'+i+'"]')[0] , 0 , 0 , ts , ts );
+		}
+		rightSized[ ts ]=t;
+	};
+	
+	motif.drawTile = function( symbol , context , ts , x , y ){
+		var x=x||0;
+		var y=y||0;
+		if( symbol >= 20 || symbol == 0)
+			return;		// draw nothing
+		
+		if( symbol < 13 ){
+			// draw the symbol, search for it in the array
+			if( !rightSized[ ts ] )
+				// if it doesnt exits at this size, create the whole set for this size
+				computeRightSized(ts);	
+			
+			//draw the tile ( the canvas is already at the correct size, we assume its faster to draw that way )
+			context.drawImage( rightSized[ ts ][ symbol ] , x , y );
+		}
+		else
+		{
+			// fill the tile with a color
+			context.fillStyle = colorPalette[ Math.min( symbol - 13 , colorPalette.length -1 ) ] ;
+			context.beginPath();
+			context.rect(  x , y , ts , ts );
+			context.fill();
+		}
+	};
+	return motif;
+})();	
+
+};
+
+
+//== Components =====
 
 var MapDOMRenderer = 
 (function(){
@@ -2054,7 +2214,14 @@ var MapChunkRenderer =
 	return Renderer;
 })();
 
-
+/**
+ * @class herit of a map renderer, knows to listen to user event and react ( navigaute , edit ... )
+ * @description behavior can be altered with the following methods
+ * @description - movable( {boolean} enable ) -> the map can be navigate throught drag
+ * @description - editable( {boolean} enable ) -> the map can be edit ( pop the symbol tab , pop the text input ) when dblclick on a cell, change will be made throught a command
+ * @description - pathTracable( {boolean} enable ) -> enable the path tracer tool
+ * @description - erasable( {boolean} enable ) -> enable the zone eraser tool
+ */
 var MapReactiveRenderer = function(){};
 MapReactiveRenderer.prototype._renderStrategy=MapChunkRenderer;
 extend( MapReactiveRenderer , MapReactiveRenderer.prototype._renderStrategy.prototype );
@@ -2075,6 +2242,13 @@ extend( MapReactiveRenderer , {
 		
 		this.initInteraction();
 	},
+	/**
+	 * @public
+	 * @description make the cell passed in param to be on the center on the screen
+	 * @param {int} celx , horizontal coordinate of the cell
+	 * @param {int} cely , vertical coordinate of the cell
+	 * @param {boolean} smooth , if true, the move is not instantly
+	 */
 	focusOn:function(celx,cely,smooth){
 		var smooth=(smooth==null)?true:smooth;
 		
@@ -2090,6 +2264,9 @@ extend( MapReactiveRenderer , {
 			this.setOrigin(x,y);
 		}
 	},
+	/**
+	 * @private
+	 */
 	setOriginSmooth:function(x,y){
 		this._targetOriginD.x=x;
 		this._targetOriginD.y=y;
@@ -2771,6 +2948,9 @@ MapReactiveRenderer.createWithDimension=function(datamap,authorizer,container,ev
 	return m;
 }
 
+/**
+ * @class know how to display the cursor.
+ */
 var AnimatedCursor = function(){};
 extend( AnimatedCursor , {
 	animLayer:null,
@@ -3038,6 +3218,233 @@ AnimatedCursor.create=function(cursorPosfn,map,container,containerEvent){
 	return m;
 }
 
+/**
+ * @class knows how to display a instruction bubble
+ * @description instanciate via a hidden factory
+ */
+var Bubble=function(){};
+Bubble.prototype={
+        
+        element : null,
+        _q : null,
+        _pos : null,
+		_phymap:null,
+        ctx:null,
+		
+		_d:null,
+		
+        init : function( queue ){
+            this._q = queue;
+              
+			var w=50;
+			this.element = $("<canvas>")
+			.width( w ).height( w ).attr( 'height' ,  w ).attr( 'width' ,  w )
+			.css({ 'position' : 'absolute' })
+			.css({ 'z-index' : '5' });
+            this.ctx=this.element[0].getContext('2d');
+        },
+        prepare : function( symbols , pos , phymap ){
+                
+                var w=phymap.getTileSize()*2.5;
+				
+				
+				this.element.width( w ).height( w ).attr( 'height' ,  w ).attr( 'width' ,  w )
+				this.ctx=this.element[0].getContext('2d');
+				
+                this.ctx.clearRect( 0 , 0 , w , w );
+                
+				if(symbols.length==1)
+					switch(symbols[0]){
+						
+						case CEL_RIGHT:
+						case CEL_DRIGHT:
+						case CEL_LEFT:
+						case CEL_DLEFT:
+						case CEL_TOP:
+						case CEL_BOT:
+						
+						case CEL_TRIGHT:
+						case CEL_TLEFT:
+						case CEL_TTOP:
+						case CEL_TBOT:
+							motif.drawTile( symbols[0] , this.ctx , w );
+						break;
+						default :
+							motif.drawTile( symbols[0] , this.ctx , w );
+						break;
+					}
+				if(symbols.length>=2)
+					switch(symbols[0]){
+						case CEL_CHECK:
+							motif.drawTile( symbols[0] , this.ctx , w/2 );
+							motif.drawTile( symbols[1] , this.ctx , w/2 , w/2 , 0 );
+							this.ctx.beginPath();
+							this.ctx.rect(w/2,0,w/2,w/2);
+							this.ctx.lineWidth=0.5;
+							this.ctx.stroke();
+							
+						break;
+						case CEL_WRITE:
+							motif.drawTile( symbols[0] , this.ctx , w/2 );
+							motif.drawTile( symbols[1] , this.ctx , w/2 , w/2 , 0 );
+							this.ctx.beginPath();
+							this.ctx.rect(w/2,0,w/2,w/2);
+							this.ctx.lineWidth=0.5;
+							this.ctx.stroke();
+							
+						break;
+					}
+					
+				
+				
+				
+				
+                this._d=0;
+                this._pos = {
+                        x : pos.x,
+                        y : pos.y
+                };
+                this._phymap=phymap;
+                
+				timeLine.registerListener({o:this,f:this._live});
+				this._live(0);
+				this.element.css({'opacity':1});
+        },
+        _live : function( delta ){
+                var o=this._phymap.getOrigin(),
+					ts=this._phymap.getTileSize(),
+					d=Math.min(1,this._d/1000);
+					
+				var w=ts*2.5;
+				
+				var t= (Math.sin( d*d * Math.PI * 5 )*0.3+0.7);
+				
+				var x=(this._pos.x+o.x+0.5)*ts	-w*t*0.5  ,
+					y=(this._pos.y+o.y+0.5)*ts	-w*t*0.5  -Math.sin( d*d * Math.PI * 5 )*(1-d)*w  -d*w;
+				
+				this.element.css({ 'width' : (t*w)+'px' , 'height' : (t*w)+'px' });
+                this.element.css({ 'left' : (Math.round( x*100 )/100)+'px' , 'top' : (Math.round( y*100 )/100)+'px' });
+                
+				
+                if( d>0.6 )
+                   this.element.css({ 'opacity' : Math.max( 0 , (1-d)/0.4 ) });
+                
+                
+				this._d+=delta;
+				if(this._d>1000){
+					this._pushToQueue();
+				}
+        },    
+       finish : function( ){
+                if( this.element )
+                     this.element.remove();
+                this.element = null;
+				timeLine.removeListener({o:this,f:this._live});
+        },
+        _pushToQueue : function(){
+             this.element.detach();
+			 timeLine.removeListener({o:this,f:this._live});
+             this._q.push( this );
+        },
+        getElement : function(){
+             return this.element;
+        },
+
+};
+Bubble._unuseStack=Queue.createWithCapacity(25);
+Bubble.create = function( symbols , pos , phymap ){
+        var b = this._unuseStack.pop();
+        if( b == null ){
+            b = new Bubble();
+            b.init( this._unuseStack );
+        }
+        b.prepare( symbols , pos , phymap );
+        return b;
+};
+
+/**
+ * @class instanciate bubble whenever its necessary
+ */
+var BubbleEmitter = function(){};
+BubbleEmitter.prototype = {
+	containerInstruction:null,
+	containerTape:null,
+	engine:null,
+	phyTape:null,
+	phyInstruction:null,
+	init:function(engine ,containerInstruction , containerTape , phyTape , phyInstruction ){
+		this.containerInstruction=containerInstruction;
+		this.containerTape=containerTape;
+		this.phyTape=phyTape;
+		this.phyInstruction=phyInstruction;
+		this.engine=engine;
+		
+		this.listen(true);
+	},
+	_readAndEmit:function(){
+		var c={x:this.engine.getCursorInstr().x,y:this.engine.getCursorInstr().y};
+		var s=this.engine.getInstruction().read(c.x,c.y);
+		switch( s ){
+			case CEL_TRIGHT:
+			case CEL_TLEFT:
+			case CEL_TTOP:
+			case CEL_TBOT:
+				var b=Bubble.create([s] , c , this.phyInstruction);
+				b.getElement().appendTo(this.containerInstruction);
+			break;
+			
+			case CEL_CHECK:
+				//read the next
+				var sn=this.engine.getInstruction().read(c.x+1,c.y);
+				var b=Bubble.create([s,sn] , c , this.phyInstruction);
+				b.getElement().appendTo(this.containerInstruction);
+				var ct={x:this.engine.getCursorTape().x,y:this.engine.getCursorTape().y};
+				var st=this.engine.getTape().read(ct.x,ct.y);
+				var cond=(sn==st);
+				var self=this;
+				(function(){
+					var cc=c;
+					WakeMeUp.create(800,{o:self,f:function(){
+						var b=Bubble.create([(cond)?CEL_DRIGHT:CEL_BOT] , cc , self.phyInstruction);
+						b.getElement().appendTo(self.containerInstruction);
+					}});
+				})();
+				var b=Bubble.create( [CEL_CHECK,st] , ct , this.phyTape);
+				b.getElement().appendTo(self.containerTape);
+			break;
+			
+			case CEL_WRITE:
+				//read the next
+				var sn=this.engine.getInstruction().read(c.x+1,c.y);
+				var b=Bubble.create([s,sn] , c , this.phyInstruction);
+				b.getElement().appendTo(this.containerInstruction);
+				var ct={x:this.engine.getCursorTape().x,y:this.engine.getCursorTape().y};
+				var b=Bubble.create( [CEL_WRITE,sn] , ct , this.phyTape);
+				b.getElement().appendTo(this.containerTape);
+				
+			break;
+		}
+	},
+	listen:function(enable){
+		this.engine.removeListener('before-cycle',{o:this,f:this._readAndEmit});
+		if(enable)
+			this.engine.registerListener('before-cycle',{o:this,f:this._readAndEmit});
+	},
+};
+BubbleEmitter.create = function( engine , containerInstruction , containerTape , phyTape , phyInstruction ){
+	var m = new BubbleEmitter();
+	m.init( engine , containerInstruction , containerTape , phyTape , phyInstruction );
+	return m;
+}
+
+
+
+
+//== Composite =====
+
+/**
+ * @class a composition of two reactive maps and two animated cursors
+ */
 var Scene = function(){};
 Scene.prototype = {
 	
@@ -3229,35 +3636,7 @@ Scene.prototype = {
 		
 	},
 	
-	followTapeCursor:function(enable){
-		this.engine.removeListener('set-cursor-tape',this);
-		if( enable ){
-			this.engine.registerListener('set-cursor-tape',{o:this,f:function(){
-				var c=this.engine.getCursorTape();
-				this._phyTape.focusOn(c.x,c.y);
-			}});
-			var c=this.engine.getCursorTape();
-			this._phyTape.focusOn(c.x,c.y);
-		}
-		return this;
-	},
-	followInstructionCursor:function(enable){
-		this.engine.removeListener('set-cursor-instruction',this);
-		if( enable ){
-			this.engine.registerListener('set-cursor-instruction',{o:this,f:function(){
-				var c=this.engine.getCursorInstr();
-				this._phyInstruc.focusOn(c.x,c.y);
-			}});
-			var c=this.engine.getCursorInstr();
-			this._phyInstruc.focusOn(c.x,c.y);
-		}
-		return this;
-	},
 	
-	popsUpBubble:function(enable){
-		this._bubbleMgr.listen(enable);
-		return this;
-	},
 	
 	_popUpEditeablePanel : function( pos , mapData , cel ){
 		
@@ -3282,6 +3661,35 @@ Scene.prototype = {
 		
 	},
 	
+	
+	followTapeCursor:function(enable){
+		this.engine.removeListener('set-cursor-tape',this);
+		if( enable ){
+			this.engine.registerListener('set-cursor-tape',{o:this,f:function(){
+				var c=this.engine.getCursorTape();
+				this._phyTape.focusOn(c.x,c.y);
+			}});
+			var c=this.engine.getCursorTape();
+			this._phyTape.focusOn(c.x,c.y);
+		}
+		return this;
+	},
+	followInstructionCursor:function(enable){
+		this.engine.removeListener('set-cursor-instruction',this);
+		if( enable ){
+			this.engine.registerListener('set-cursor-instruction',{o:this,f:function(){
+				var c=this.engine.getCursorInstr();
+				this._phyInstruc.focusOn(c.x,c.y);
+			}});
+			var c=this.engine.getCursorInstr();
+			this._phyInstruc.focusOn(c.x,c.y);
+		}
+		return this;
+	},
+	popsUpBubble:function(enable){
+		this._bubbleMgr.listen(enable);
+		return this;
+	},
 	cursorInstMovable:function(enable){ this._cursorInstr.movable(enable); return this; },
 	cursorTapeMovable:function(enable){ this._cursorTape.movable(enable); return this; },
 	zoomable:function(enable){ return this; },
@@ -3314,117 +3722,6 @@ Scene.createWithDim = function( w,h,eng,authorizerTape,authorizerInstruction ){
 	return md;
 };
 
-var EnginePlayer = function(){};
-extend( EnginePlayer , AbstractNotifier.prototype );
-extend( EnginePlayer , {
-	engine:null,
-	ll:null,
-	
-	_cyclePerS:null,
-	_cyclePartial:null,
-	_run:false,
-	
-	init:function(engine,ll){
-		this.engine=engine;
-		this.ll=ll;
-		timeLine.registerListener({f:this.call,o:this});
-		
-		this._cyclePartial=0;
-		this._cyclePerS=0;
-		
-		if( this.ll )
-			this.ll.registerListener( 'set-level' ,{f:function(){ this.reset(); } , o:this} );
-			
-		
-	},
-	setSpeed:function(v){
-		if( this._cyclePerS == v )
-			return;
-		this._cyclePerS = v;
-		this.notify("set-speed");
-	},
-	isRunning:function(){
-		return this._run;
-	},
-	getSpeed:function(){
-		return this._cyclePerS
-	},
-	next:function(){
-		this.engine.cycle();
-	},
-	start : function( ){
-		if(this._run)
-			return;
-		this._run = true;
-		this._cyclePartial = 0;
-		this.notify('start');
-	},
-	stop : function(){
-		if(!this._run)
-			return;
-		this._run = false;
-		this.notify('stop');
-	},
-	call : function( delta ){
-		
-		if( !this._run )
-			return;
-		
-		var n = delta / 1000 * this._cyclePerS + this._cyclePartial;
-		
-		for( var i = 0 ; i < Math.floor( n ) ; i ++ )
-			this.engine.cycle();
-		this._cyclePartial = n%1;
-	},
-	reset : function(options){
-		options=options||{};
-		var cursor		= options.cursor!=null?options.cursor:true;
-		var map			= options.map!=null?options.map:true;
-		var instruction	= options.instruction!=null?options.instruction:true;
-		var tape		= options.tape!=null?options.tape:true;
-		var solution 	= options.solution!=null?options.solution:false;
-		var undoable 	= options.undoable!=null?options.undoable:true;
-		var lvl			= options.lvl || ( this.ll ? this.ll.getLvl() : null );
-		
-		var t=[];
-		
-		if( map && instruction ){
-			var instruction = this.engine.getInstruction();
-			var rewriteManual = lvl ? ( solution ? lvl.writeManualInstructionSolution : lvl.writeManualInstruction ) : [];
-			
-			t.push( cmd.resetMap.create( instruction ) );
-			for(var i=0;i<rewriteManual.length;i++)
-				t.push( cmd.writeMap.create( instruction , rewriteManual[i] , rewriteManual[i].s ) );
-		}
-		if( map && tape ){
-			var tape = this.engine.getTape();
-			var rewriteManual = lvl ? ( solution ? lvl.writeManualTapeSolution : lvl.writeManualTape ) : [];
-			
-			t.push( cmd.resetMap.create( tape ) );
-			for(var i=0;i<rewriteManual.length;i++)
-				t.push( cmd.writeMap.create( tape , rewriteManual[i] , rewriteManual[i].s ) );
-		}
-		if( cursor && instruction ){
-			var cursorp = lvl ? lvl.cursorInstruction : {x:0, y:0};
-			t.push( cmd.moveCursor.create( 'instruction' , this.engine , cursorp ) );
-		}
-		if( cursor && tape ){
-			var cursorp = lvl ? lvl.cursorTape : {x:0, y:0};
-			t.push( cmd.moveCursor.create( 'tape' , this.engine , cursorp ) );
-		}
-		if(t.length==0)
-			return;
-		if(undoable)
-			cmd.mgr.execute( cmd.multi.createWithTab(t) );
-		else
-			cmd.multi.createWithTab(t).execute();
-	},
-});
-EnginePlayer.create=function(engine,ll){
-	var e=new EnginePlayer();
-	e.init(engine,ll);
-	return e;
-};
 
 var ToolBox = function(){};
 ToolBox.prototype = {
@@ -3441,7 +3738,7 @@ ToolBox.prototype = {
 	
 	$el:null,
 	
-	_speeds : [ 1 , 2 , 5 , 10  , 30 , 90  ],
+	_speeds : [ 1 , 2 , 5 , 10  , 30 , 90 , 500 ],
 	
 	engineplayer:null,
 	ll:null,
@@ -3553,7 +3850,7 @@ ToolBox.prototype = {
 		
 		this.scene.cursorInstMovable(false).cursorTapeMovable(false);
 		
-		if( this.ll )
+		if( !this.scene.authorizerTape.defaultValue )
 			this.engineplayer.reset({'instruction':false,'tape':true,'undoable':false});
 	},
 	editingShow:function(){
@@ -3709,218 +4006,163 @@ ToolBox.create = function( scene , engineplayer , ll ){
 	return m;
 }
 
+//// ctrl z - ctrl y listener
+$(document).ready(function(){
+		$(document).on('keyup' , function(e){
+			if(!e.ctrlKey)
+				return;
+			switch(e.which){
+				case 90:
+					cmd.mgr.undo();
+				break;
+				case 89:
+					cmd.mgr.redo();
+				break;
+			}
+		});
+});
 
-var Bubble=function(){};
-Bubble.prototype={
-        
-        element : null,
-        _q : null,
-        _pos : null,
-		_phymap:null,
-        ctx:null,
-		
-		_d:null,
-		
-        init : function( queue ){
-            this._q = queue;
-              
-			var w=50;
-			this.element = $("<canvas>")
-			.width( w ).height( w ).attr( 'height' ,  w ).attr( 'width' ,  w )
-			.css({ 'position' : 'absolute' })
-			.css({ 'z-index' : '5' });
-            this.ctx=this.element[0].getContext('2d');
-        },
-        prepare : function( symbols , pos , phymap ){
-                
-                var w=phymap.getTileSize()*2.5;
-				
-				
-				this.element.width( w ).height( w ).attr( 'height' ,  w ).attr( 'width' ,  w )
-				this.ctx=this.element[0].getContext('2d');
-				
-                this.ctx.clearRect( 0 , 0 , w , w );
-                
-				if(symbols.length==1)
-					switch(symbols[0]){
-						
-						case CEL_RIGHT:
-						case CEL_DRIGHT:
-						case CEL_LEFT:
-						case CEL_DLEFT:
-						case CEL_TOP:
-						case CEL_BOT:
-						
-						case CEL_TRIGHT:
-						case CEL_TLEFT:
-						case CEL_TTOP:
-						case CEL_TBOT:
-							motif.drawTile( symbols[0] , this.ctx , w );
-						break;
-						default :
-							motif.drawTile( symbols[0] , this.ctx , w );
-						break;
-					}
-				if(symbols.length>=2)
-					switch(symbols[0]){
-						case CEL_CHECK:
-							motif.drawTile( symbols[0] , this.ctx , w/2 );
-							motif.drawTile( symbols[1] , this.ctx , w/2 , w/2 , 0 );
-							this.ctx.beginPath();
-							this.ctx.rect(w/2,0,w/2,w/2);
-							this.ctx.lineWidth=0.5;
-							this.ctx.stroke();
-							
-						break;
-						case CEL_WRITE:
-							motif.drawTile( symbols[0] , this.ctx , w/2 );
-							motif.drawTile( symbols[1] , this.ctx , w/2 , w/2 , 0 );
-							this.ctx.beginPath();
-							this.ctx.rect(w/2,0,w/2,w/2);
-							this.ctx.lineWidth=0.5;
-							this.ctx.stroke();
-							
-						break;
-					}
-					
-				
-				
-				
-				
-                this._d=0;
-                this._pos = {
-                        x : pos.x,
-                        y : pos.y
-                };
-                this._phymap=phymap;
-                
-				timeLine.registerListener({o:this,f:this._live});
-				this._live(0);
-				this.element.css({'opacity':1});
-        },
-        _live : function( delta ){
-                var o=this._phymap.getOrigin(),
-					ts=this._phymap.getTileSize(),
-					d=Math.min(1,this._d/1000);
-					
-				var w=ts*2.5;
-				
-				var t= (Math.sin( d*d * Math.PI * 5 )*0.3+0.7);
-				
-				var x=(this._pos.x+o.x+0.5)*ts	-w*t*0.5  ,
-					y=(this._pos.y+o.y+0.5)*ts	-w*t*0.5  -Math.sin( d*d * Math.PI * 5 )*(1-d)*w  -d*w;
-				
-				this.element.css({ 'width' : (t*w)+'px' , 'height' : (t*w)+'px' });
-                this.element.css({ 'left' : (Math.round( x*100 )/100)+'px' , 'top' : (Math.round( y*100 )/100)+'px' });
-                
-				
-                if( d>0.6 )
-                   this.element.css({ 'opacity' : Math.max( 0 , (1-d)/0.4 ) });
-                
-                
-				this._d+=delta;
-				if(this._d>1000){
-					this._pushToQueue();
-				}
-        },    
-       finish : function( ){
-                if( this.element )
-                     this.element.remove();
-                this.element = null;
-				timeLine.removeListener({o:this,f:this._live});
-        },
-        _pushToQueue : function(){
-             this.element.detach();
-			 timeLine.removeListener({o:this,f:this._live});
-             this._q.push( this );
-        },
-        getElement : function(){
-             return this.element;
-        },
-
-};
-Bubble._unuseStack=Queue.createWithCapacity(20);
-Bubble.create = function( symbols , pos , phymap ){
-        var b = this._unuseStack.pop();
-        if( b == null ){
-            b = new Bubble();
-            b.init( this._unuseStack );
-        }
-        b.prepare( symbols , pos , phymap );
-        return b;
-};
-
-var BubbleEmitter = function(){};
-BubbleEmitter.prototype = {
-	containerInstruction:null,
-	containerTape:null,
+var SaveLoadView=function(){};
+SaveLoadView.prototype={
 	engine:null,
-	phyTape:null,
-	phyInstruction:null,
-	init:function(engine ,containerInstruction , containerTape , phyTape , phyInstruction ){
-		this.containerInstruction=containerInstruction;
-		this.containerTape=containerTape;
-		this.phyTape=phyTape;
-		this.phyInstruction=phyInstruction;
+	element:null,
+	init:function(engine,engineplayer,panel){
 		this.engine=engine;
+		this.engineplayer=engineplayer;
 		
-		this.listen(true);
-	},
-	_readAndEmit:function(){
-		var c={x:this.engine.getCursorInstr().x,y:this.engine.getCursorInstr().y};
-		var s=this.engine.getInstruction().read(c.x,c.y);
-		switch( s ){
-			case CEL_TRIGHT:
-			case CEL_TLEFT:
-			case CEL_TTOP:
-			case CEL_TBOT:
-				var b=Bubble.create([s] , c , this.phyInstruction);
-				b.getElement().appendTo(this.containerInstruction);
-			break;
+		var save=function(){
 			
-			case CEL_CHECK:
-				//read the next
-				var sn=this.engine.getInstruction().read(c.x+1,c.y);
-				var b=Bubble.create([s,sn] , c , this.phyInstruction);
-				b.getElement().appendTo(this.containerInstruction);
-				var ct={x:this.engine.getCursorTape().x,y:this.engine.getCursorTape().y};
-				var st=this.engine.getTape().read(ct.x,ct.y);
-				var cond=(sn==st);
-				var self=this;
-				(function(){
-					var cc=c;
-					WakeMeUp.create(800,{o:self,f:function(){
-						var b=Bubble.create([(cond)?CEL_DRIGHT:CEL_BOT] , cc , self.phyInstruction);
-						b.getElement().appendTo(self.containerInstruction);
-					}});
-				})();
-				var b=Bubble.create( [CEL_CHECK,st] , ct , this.phyTape);
-				b.getElement().appendTo(self.containerTape);
-			break;
+			var instruction=panel.find( '#collapse-save #save-instruction' ).length==0?true:panel.find( '#collapse-save #save-instruction' ).is(':checked');
+			var tape=panel.find( '#collapse-save #save-panel' ).length==0?true:panel.find( '#collapse-save #save-tape' ).is(':checked');
 			
-			case CEL_WRITE:
-				//read the next
-				var sn=this.engine.getInstruction().read(c.x+1,c.y);
-				var b=Bubble.create([s,sn] , c , this.phyInstruction);
-				b.getElement().appendTo(this.containerInstruction);
-				var ct={x:this.engine.getCursorTape().x,y:this.engine.getCursorTape().y};
-				var b=Bubble.create( [CEL_WRITE,sn] , ct , this.phyTape);
-				b.getElement().appendTo(this.containerTape);
+			var save = this.save({
+				instructionMap:instruction,
+				instructionCursor:instruction,
+				tapeMap:tape,
+				tapeCursor:tape,
+			});
+			var s=JSON.stringify(save);
+			
+			panel.find( '#collapse-save input[type=text]' )
+			.val(s)
+			.focus()
+			.select();
+			
+			
+			/*
+				// not working properly 
+				panel.find( '[data-action=link]' )
+				.children().remove();
 				
-			break;
-		}
+				panel.find( '[data-action=link]' )
+				.append( this.generateLink(s) )
+				.append( this.generateGetLink(s) );
+				
+				panel.find( '[data-action=link] a' )
+				.on( 'mousedown' , function(e){
+					if(e.which==1){
+						alert('use right click , save as\n otherwise we will lose what you are doing');
+						e.stopPropagation();
+						e.preventDefault();
+					}
+				});
+				*/
+		};
+		
+		panel.find("[data-action=save]").on('click',
+			$.proxy( function(e){
+				save.call(this);
+				panel.find("#collapse-save").collapse('show');
+			},this));
+		
+		panel.find("#collapse-save input[type=checkbox]").on('change',$.proxy( save ,this));
+		
+		
+		panel.find( 'input[type=text]' )
+		.on('click' , function(e){ 
+			$(e.target).focus().select(); 
+			e.stopPropagation(); 
+			e.preventDefault();
+		} );
+		
+		var loadinput=function(e){ 
+			var s=$(e.target).val();
+			if(s.trim().length>0){
+				var save=JSON.parse(s);
+				this.load(save,
+					panel.find( '#collapse-load #load-instruction' ).is(':checked'),
+					panel.find( '#collapse-load #load-tape' ).is(':checked')
+					);
+				panel.find("#collapse-load").collapse('hide');
+				panel.find( '#collapse-load input[type=text]' ).val('');
+			}
+			e.stopPropagation(); 
+			e.preventDefault();
+		};
+		
+		panel.find( '#collapse-load input[type=text]' )
+		.on('focusout' , $.proxy( loadinput,this) )
+		.on('keydown' , $.proxy( function(e){
+			if(e.which==13)
+				loadinput.call(this,e);
+		},this) );
+		
+		panel.find( '#collapse-load input[type=file]' )
+		.on('change' , $.proxy( function(e){
+			var file=e.target.files[0];
+			var fr=new FileReader();
+			fr.onload=$.proxy(function(e){
+				var s=e.target.result;
+				if(s.trim().length>0){
+					var save=JSON.parse(s);
+					this.load(save);
+				}
+			},this);
+			fr.readAsText(file);
+		},this) );
+		
+		panel.movable();
 	},
-	listen:function(enable){
-		this.engine.removeListener('before-cycle',{o:this,f:this._readAndEmit});
-		if(enable)
-			this.engine.registerListener('before-cycle',{o:this,f:this._readAndEmit});
+	generateLink:function(save){
+		return $('<form name="pseudoform" method="post" action="http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php"><input type="hidden" name="stuff" value=\'' + save +'\'/><input type="submit"></input><a target="_blank" href="javascript:pseudoform.submit()">file ( post method )</a></form>');	
+	},
+	generateGetLink:function(save){
+		return $('<a href=\'http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php?stuff='+save+'\' target="_blank" >file ( get method )</a>');	
+	},
+	save:function(options){
+		options=options||{};
+		var s={};
+		
+		if( options.instructionMap != null ? options.instructionMap : true )
+			s[ 'writeManualInstruction' ] = this.engine.getInstruction().getRewriteManual();
+		
+		if( options.instructionCursor != null ? options.instructionCursor : true )
+			s[ 'cursorInstruction' ] = this.engine.getCursorInstr();
+		
+		if( options.tapeMap != null ? options.tapeMap : true )
+			s[ 'writeManualTape' ] = this.engine.getTape().getRewriteManual();
+		
+		if( options.tapeCursor != null ? options.tapeCursor : true )
+			s[ 'cursorTape' ] = this.engine.getCursorTape();
+		
+		return s;
+	},
+	load:function(save,instruction,tape){
+		instruction= instruction != null ? instruction : true;
+		tape = tape != null ? tape : true;
+		var options={
+			'lvl':save,
+			'instruction' : instruction && save.writeManualInstruction != null,
+			'tape' : tape && save.writeManualTape != null,
+		};
+		this.engineplayer.reset( options );
 	},
 };
-BubbleEmitter.create = function( engine , containerInstruction , containerTape , phyTape , phyInstruction ){
-	var m = new BubbleEmitter();
-	m.init( engine , containerInstruction , containerTape , phyTape , phyInstruction );
-	return m;
-}
+SaveLoadView.create = function( engine,engineplayer,panel ){
+     var s=new SaveLoadView()
+	 s.init(engine,engineplayer,panel);
+	 return s;
+};
 
 
 var LevelsLoader=function(){};
@@ -4007,6 +4249,7 @@ LevelsLoader.create=function(engine,authorizerTape,authorizerInstruction){
 	return ll;
 };
 
+
 var DecriptionPanelView=function(){};
 DecriptionPanelView.prototype={
 	navigation:null,
@@ -4015,6 +4258,8 @@ DecriptionPanelView.prototype={
 	engineplayer:null,
 	ll:null,
 	
+	lang:'fr',
+	
 	init:function(engineplayer,ll,description,navigation){
 		this.navigation=navigation;
 		this.description=description;
@@ -4022,12 +4267,50 @@ DecriptionPanelView.prototype={
 		this.engineplayer=engineplayer;
 		this.ll=ll;
 		
+		var rek=(/lang=([^&]+)/).exec(document.URL);
+		this.lang = rek==null?'fr':rek[1];
+		if(this.lang!="eng"&&this.lang!="fr")
+			this.lang="fr";
 		
 		for( var i=0;i<levels.length;i++)
-			this.navigation.find('.btn-group').append( $('<button class="btn" data-i="'+i+'">'+(i+1)+'</button>') );
+			this.navigation.find('#exercices').append( $('<button class="btn" data-i="'+i+'">'+(i+1)+'</button>') );
+		
+		
+		var table=$('<ul>');
+		var group=[ 
+			{a:0,  b:2,  title:'découverte'},
+			{a:3,  b:4,  title:'premiers programmes'},
+			{a:5,  b:9,  title:'arithmétique'},
+			{a:10,  b:11,  title:'représentation binaire'},
+			{a:12,  b:12,  title:'bonus'},
+		];
+		var tmp=$('<div>');
+		for(var i=0;i<group.length;i++){
+			var l=$('<ul>');
+			for(var j=group[i].a;j<=group[i].b;j++){
+				tmp.empty().wrapInner(  $(".descriptionPool[lang="+this.lang+"]").children(".description[data-id="+j+"]").html()  );
+				var title=tmp.find('h1').text();
+				$('<li>'+(j+1)+' : <a data-i="'+j+'">'+title+'</a></li>')
+				.appendTo(l)
+				.find('a')
+				.on('click',$.proxy(function(e){
+					this.ll.gotoLvl( parseInt( $(e.target).attr('data-i') ) );
+					e.preventDefault();
+					e.stopPropagation();
+				},this))
+			}
+			table.append( $('<li><h4>'+group[i].title+'</h4></li>').append(l) );
+		};
+		$('#summary-btn').popover({
+			'title':$('<h4>summary</h4>'),
+			'placement':'top',
+			'trigger':'click',
+			'html':true,
+			'content':table
+		})
 		
 		this.navigation.find('.btn-group .btn')
-		.on('click' , $.proxy( function(e){ this.ll.gotoLvl( parseInt( $(e.target).attr('data-i') ) ); } ,this ) );
+		.on('click' , $.proxy( function(e){ if($(e.target).attr('data-i')==null)return; this.ll.gotoLvl( parseInt( $(e.target).attr('data-i') ) ); } ,this ) );
 		
 		this.navigation.find('.btn[data-action="next"]')
 		.on('click' , $.proxy( function(e){ this.engineplayer.stop(); this.ll.next(); } ,this ) );
@@ -4043,13 +4326,13 @@ DecriptionPanelView.prototype={
 		
 		//load the html description
 		this.description.children().remove();
-		this.description.empty().wrapInner( $(".descriptionPool[lang=fr]").children(".description[data-id="+this.ll.level+"]").html() );
+		this.description.empty().wrapInner( $(".descriptionPool[lang="+this.lang+"]").children(".description[data-id="+this.ll.level+"]").html() );
 		
 		//reset btn
 		this.navigation.find('.btn[data-action="next"]')
 		.removeClass('btn-success');
 			
-		this.navigation.find('.btn-group .btn').removeClass('active')
+		this.navigation.find('.btn-group .btn:not(#summary-btn)').removeClass('active')
 		this.navigation.find('.btn-group .btn[data-i='+this.ll.level+']').addClass('active');
 	},
 	win:function(){
@@ -4063,135 +4346,6 @@ DecriptionPanelView.create=function(engineplayer,ll,description,navigation){
 	return a;
 };
 
-var Authorizer=function(){};
-extend( Authorizer , AbstractNotifier.prototype );
-extend( Authorizer , {
-	exceptions:null,
-	defaultValue:null,
-	cursorCtrl:null,
-	init:function(defaultValue,exceptions,cursorCtrl){
-		this.exceptions=exceptions||[];
-		this.defaultValue=defaultValue;
-		this.cursorCtrl=cursorCtrl;
-		this.notify('struct');
-	},
-	read:function(x,y){
-		var i=this.exceptions.length;
-		while(i--)
-			if(this.exceptions[i].x==x&&this.exceptions[i].y==y)
-				return !this.defaultValue;
-		return this.defaultValue;
-	},
-});
-Authorizer.create=function(defaultValue,exceptions,cursorCtrl){
-	var a=new Authorizer();
-	a.init(defaultValue,exceptions,cursorCtrl);
-	return a;
-};
-
-
-var SaveLoadView=function(){};
-SaveLoadView.prototype={
-	engine:null,
-	element:null,
-	init:function(engine,engineplayer,panel){
-		this.engine=engine;
-		this.engineplayer=engineplayer;
-		
-		panel.find("[data-action=save]").on('click',
-			$.proxy( function(e){
-				
-				var save = this.save();
-				
-				var s=JSON.stringify(save);
-				
-				panel.find( '[data-action=link]' )
-				.children().remove();
-				
-				panel.find( '[data-action=link]' )
-				.append( this.generateLink(s) )
-				.append( this.generateGetLink(s) );
-				
-				panel.find( '#collapse-save input[type=text]' )
-				.val(s)
-				.focus()
-				.select();
-				
-				panel.find( '[data-action=link] a' )
-				.on( 'mousedown' , function(e){
-					if(e.which==1){
-						alert('use right click , save as\n otherwise we will lose what you are doing');
-						e.stopPropagation();
-						e.preventDefault();
-					}
-				});
-				
-			},this));
-		
-		panel.find( 'input[type=text]' )
-		.on('click' , function(e){ 
-			$(e.target).focus().select(); 
-			e.stopPropagation(); 
-			e.preventDefault();
-		} );
-		
-		var loadinput=function(e){ 
-			var s=$(e.target).val();
-			if(s.trim().length>0){
-				var save=JSON.parse(s);
-				this.load(save);
-			}
-			e.stopPropagation(); 
-			e.preventDefault();
-		};
-		
-		panel.find( '#collapse-load input[type=text]' )
-		.on('focusout' , $.proxy( loadinput,this) )
-		.on('keydown' , $.proxy( function(e){
-			if(e.which==13)
-				loadinput.call(this,e);
-		},this) );
-		
-		panel.find( '#collapse-load input[type=file]' )
-		.on('change' , $.proxy( function(e){
-			var file=e.target.files[0];
-			var fr=new FileReader();
-			fr.onload=$.proxy(function(e){
-				var s=e.target.result;
-				if(s.trim().length>0){
-					var save=JSON.parse(s);
-					this.load(save);
-				}
-			},this);
-			fr.readAsText(file);
-		},this) );
-		
-		panel.movable();
-	},
-	generateLink:function(save){
-		return $('<form name="pseudoform" method="post" action="http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php"><input type="hidden" name="stuff" value=\'' + save +'\'/><input type="submit"></input><a target="_blank" href="javascript:pseudoform.submit()">file ( post method )</a></form>');	
-	},
-	generateGetLink:function(save){
-		return $('<a href=\'http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php?stuff='+save+'\' target="_blank" >file ( get method )</a>');	
-	},
-	save:function(){
-		return {
-					'writeManualInstruction' : this.engine.getInstruction().getRewriteManual(),
-					'writeManualTape' : this.engine.getTape().getRewriteManual(),
-					'cursorInstruction' : this.engine.getCursorInstr(),
-					'cursorTape' : this.engine.getCursorTape(),
-				};
-	},
-	load:function(save){
-		this.engineplayer.reset( {'lvl':save} );
-	},
-};
-SaveLoadView.create = function( engine,engineplayer,panel ){
-     var s=new SaveLoadView()
-	 s.init(engine,engineplayer,panel);
-	 return s;
-};
-
 
 scope.SaveLoadView = SaveLoadView;
 scope.DecriptionPanelView = DecriptionPanelView;
@@ -4203,20 +4357,20 @@ scope.ToolBox = ToolBox;
 scope.LevelsLoader = LevelsLoader;
 
 scope.SocialMap = SocialMap;
-scope.MapDOMRenderer = MapReactiveRenderer;
 
-scope.cmd = cmd;
-scope.timeLine = timeLine;
 scope.initWhenDOMLoaded=initWhenDOMLoaded;
+
 } )( window );
 
 
-
-document.onselectstart = function() {
+// disable selection
+document.onselectstart = function(e) {
   return false;
 };
 
-
+/**
+ * jQuery plugin for making an element draggable
+ */
 (function($){
 	var Mover=function(element,option){
 		this.drag=false;

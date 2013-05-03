@@ -190,8 +190,6 @@ div.toolBox {
 	background-color: white;
 	
 	padding: 5px;
-	padding-bottom:40px;
-	
 	z-index:99;
 }
 #save-box {
@@ -246,6 +244,13 @@ border-radius:7px;
 	padding:20px;
 	color:#aaa;
 	vertical-align:center;
+}
+#navigation{
+	padding-top: 10px;
+	border-top: solid 1px #ddd;
+	margin-top: 10px;
+	min-height:30px;
+	height:10%;
 }
 
 #container{

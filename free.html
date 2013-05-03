@@ -69,13 +69,6 @@ window.onload = function(){
 	
 };
 
-function envoi(lien) {
-
-	   document.cache.action = "http://arthur-brongniart.fr/Stockage/worstProxyEver/proxy.php?stuff="+lien;
-
-	   document.cache.submit();
-
-}
 
 </script>
 </head>
@@ -86,15 +79,19 @@ function envoi(lien) {
 
 <div id="save-box" class="toolBox" >
 	
-	<p>You can either use the old copy / paste method : copy the caracter chain from the input save text. Paste it wherever you want and paste it in the load input the next time.</p>
-	<p>Or you can try to save the file directly. Open the grey submit button in a new tab, and save the page (that is the best working way, sorry :(   ).</p>
+	<p>Copy the JSON string given in the save text input. It's up to you to remember where you paste it</p>
+	<p>Paste it in the load text input to load it. You can either grab the file where the JSON string is pasted.</p>
 	
 	<div class="row-fuild">
 		<div class="span6">
 			<div class="accordion-group mine">
-				<div class="accordion-toggle btn" data-toggle="collapse" data-target="#collapse-save" data-action="save">save</div>
+				<div class="accordion-toggle btn" data-toggle="collapse"  data-action="save">save</div>
 				<div id="collapse-save" class="accordion-body collapse">
 					<div class="accordion-inner mine">
+						<!--
+						<div class="row"><input type="checkbox" id="save-instruction" checked="checked" ></input><span>instruction</span></div>
+						<div class="row"><input type="checkbox" id="save-tape" checked="checked" ></input><span>tape</span></div>
+						-->
 						<input type="text"></input>
 						<div data-action="link"></div>
 					</div>
@@ -108,7 +105,14 @@ function envoi(lien) {
 				<div class="accordion-toggle btn" data-toggle="collapse" data-target="#collapse-load" data-action="load">load</div>
 				<div id="collapse-load" class="accordion-body collapse">
 					<div class="accordion-inner mine">
+						<div class="row">
+							<input type="checkbox" id="load-instruction" checked="checked" ></input><span>instruction</span>
+						</div>
+						<div class="row">
+							<input type="checkbox" id="load-tape" checked="checked" ></input><span>tape</span>
+						</div>
 						<input type="text"  ></input>
+						<div>...</div>
 						<input type="file" ></input>
 					</div>
 				</div>
@@ -155,7 +159,7 @@ function envoi(lien) {
 			  <div class="row-fluid">
 				<span data-action="number-cycle" >5</span> cycle per seconde
 			  </div>
-			  <input data-action="speed-set" type="range" min="0" max="5" style="width:100px;">
+			  <input data-action="speed-set" type="range" min="0" max="6" style="width:100px;">
 			  <div class="row-fluid">
 				 <div class="btn" data-action="speed-down"></div>
 				 <div class="btn" data-action="speed-up"></div>
