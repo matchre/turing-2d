@@ -3,6 +3,7 @@
 "width": "1200px",
 "height": "800px",
 "comment" : "Simulation d'une machine de Turing 2D",
+"link" : "https://github.com/InriaMecsci/Turing-2D/wiki",
 "links" : [
 {
 "title" : "Publication scientifique de référence",
