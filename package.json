@@ -1,5 +1,5 @@
 {
-  "name": "zero",
+  "name": "Turing-2D",
   "version": "0.1.0",
   "devDependencies": {
     "grunt-jslint": "~0.2.5",
