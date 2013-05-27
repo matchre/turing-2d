@@ -1,47 +1,47 @@
 {
-"name": "Turing-2D",
-"width": "1200px",
-"height": "800px",
-"comment" : "Simulation d'une machine de Turing 2D",
-"link" : "https://github.com/InriaMecsci/Turing-2D/wiki",
-"links" : [
-{
-"title" : "Publication scientifique de référence",
-"uri" : "https://who.rocq.inria.fr/Gilles.Dowek/Publi/universality2d.pdf"
-}
-],
-"authors" : [
-{
-"name" : "Brongniart, Arthur",
-"email" : "arthur.brongniart@esial.net",
-"role" : "auteur",
-"comment" : "version HTLM5/JS"
-},
-{
-"name" : "Dowek, Gilles",
-"email" : "gilles.dowek@inria.fr",
-"role" : "concepteur"
-},
-{
-"name" : "Dershowitz, Nachum",
-"email" : "nachumd@tau.ac.il",
-"role" : "concepteur"
-},
-{
-"name" : "http://www.tnservices.fr/",
-"role" : "producteur"
-}
-],
-"licenses" : [
-{
-"name" : "CC BY-NC-SA",
-"uri" : "http://creativecommons.org/licenses/by-nc-sa/3.0/fr",
-"comment" : "s'applique aux documents"
-},
-{
-"name" : "CeCILL-C",
-"uri" : "http://www.cecill.info/licences/Licence_CeCILL-C_V1-fr.html",
-"comment" : "s'applique au code source"
-}
-]
+    "name": "Turing-2D",
+    "width": "1200px",
+    "height": "800px",
+    "comment": "Simulation d'une machine de Turing 2D",
+    "link": "https://github.com/InriaMecsci/Turing-2D/wiki",
+    "links": [
+        {
+            "title": "Publication scientifique de référence",
+            "uri": "https://who.rocq.inria.fr/Gilles.Dowek/Publi/universality2d.pdf"
+        }
+    ],
+    "authors": [
+        {
+            "name": "Brongniart, Arthur",
+            "email": "arthur.brongniart@esial.net",
+            "role": "auteur",
+            "comment": "version HTLM5/JS"
+        },
+        {
+            "name": "Dowek, Gilles",
+            "email": "gilles.dowek@inria.fr",
+            "role": "concepteur"
+        },
+        {
+            "name": "Dershowitz, Nachum",
+            "email": "nachumd@tau.ac.il",
+            "role": "concepteur"
+        },
+        {
+            "name": "http://www.tnservices.fr/",
+            "role": "producteur"
+        }
+    ],
+    "licenses": [
+        {
+            "name": "CC BY-NC-SA",
+            "uri": "http://creativecommons.org/licenses/by-nc-sa/3.0/fr",
+            "comment": "s'applique aux documents"
+        },
+        {
+            "name": "CeCILL-C",
+            "uri": "http://www.cecill.info/licences/Licence_CeCILL-C_V1-fr.html",
+            "comment": "s'applique au code source"
+        }
+    ]
 }
