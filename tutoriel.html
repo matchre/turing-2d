@@ -6,74 +6,10 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <meta name="author" content="Arthur Brongniart">
 
-<script type="text/javascript" src="vendor/html5slider.js"></script>
-<script type="text/javascript" src="vendor/jquery-1.8.2.min.js"></script>
-<script type="text/javascript" src="vendor/jquery.mousewheel.min.js"></script>
-<script type="text/javascript" src="vendor/stats.min.js"></script>
-<script type="text/javascript" src="vendor/bootstrap/js/bootstrap.js"></script>
-<script type="text/javascript" src="js/levels.js"></script>
-<script type="text/javascript" src="js/logic.js"></script>
-
 <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.css" />
 <link rel="stylesheet" href="style.css" />
 
 
-<script type="text/javascript">
-
-var instruction;
-window.save=function(){return JSON.stringify(instruction.getRewriteManual());}; //little hack for dev purpose
-	
-window.onload = function(){
-	
-	//init some stuffs
-	initWhenDOMLoaded();
-	
-	//models
-	var authorizerTape=Authorizer.create(true);
-	var authorizerInstruction=Authorizer.create(true);
-	
-	var engine=TuringEngine.create( SocialMap.create() , SocialMap.create()  );
-	
-	var ll=LevelsLoader.create(engine,authorizerTape,authorizerInstruction);
-	
-	var engineplayer = EnginePlayer.create(engine,ll);
-	
-	
-	
-	//scene
-	var container=$("#container");
-	
-	scene=Scene.createWithDim(container.width(),container.height(),engine,authorizerTape,authorizerInstruction);
-	scene.getElement().appendTo( $("#container") );
-	//.css({'position':'absolute' , 'top':'130px' , 'left':'20%' });
-	
-	//left description panel
-	DecriptionPanelView.create( engineplayer , ll , $('#description') , $('#navigation') )
-	
-	ToolBox.create( scene , engineplayer , ll  ).getElement().appendTo( $("body") ).css({'z-index':50});
-	
-	//init
-	ll.next();
-	
-	
-	instruction=engine.getInstruction();
-	
-	//stats by mr doob
-	var stats = new Stats();
-	stats.setMode(0); // 0: fps, 1: ms
-
-	// Align top-left
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.right = '50px';
-	stats.domElement.style.top = '0px';
-
-	document.body.appendChild( stats.domElement );
-	
-	timeLine.stats=stats;
-};
-
-
-</script>
 </head>
 <body>
 <div style="height:95%;width:33%">
@@ -652,6 +588,7 @@ window.onload = function(){
 
 
 </div>
+<script data-main="js/main" src="js/vendor/require.js"></script>
 
 </body>
 </html>

@@ -1,6 +1,3 @@
-
-
-
 ( function( scope ){
 
 
@@ -4430,25 +4427,15 @@ document.onselectstart = function(e) {
 	};
 })(window.jQuery);
 
-
-
-
-
-
-
-/*
-// already existing , name is offset
-(function($) {
-    $.fn.pagePos = function () {
-        var pos=this.position(),
-			c = this,
-			p = null;
-		while( (p=c.parent())[0].tagName.toLowerCase() != 'html' ){
-			c=p;
-			pos.left+=c.position().left;
-			pos.top+=c.position().top;
-		}
-		return pos;
-    };
-})(jQuery);
-*/
+var TuringLogic = {
+    Authorizer: Authorizer,
+    TuringEngine: TuringEngine,
+    initWhenDOMLoaded: initWhenDOMLoaded,
+    SocialMap: SocialMap,
+    LevelsLoader: LevelsLoader,
+    EnginePlayer: EnginePlayer,
+    Scene: Scene,
+    DecriptionPanelView: DecriptionPanelView,
+    ToolBox: ToolBox,
+    timeLine: timeLine
+}
